@@ -13,7 +13,7 @@ namespace Atlas.MappingComponents.Sandbox
     /// </remarks>
     public class PrefabSpawnPoint : MonoBehaviour
     {
-        internal static Dictionary<PrefabType, GameObject> CachedObjects = new();
+        internal static readonly Dictionary<PrefabType, GameObject> CachedObjects = new();
         internal static bool ObjectsCached = false;
 
         public enum PrefabType
@@ -33,7 +33,9 @@ namespace Atlas.MappingComponents.Sandbox
             while (!ObjectsCached) yield return null;
             
             // Make a copy of the object we want to spawn and set it active
-            Instantiate(CachedObjects[Type], transform.position, transform.rotation).SetActive(true);
+            // If it's null or missing then just ignore
+            if (CachedObjects.ContainsKey(Type) && CachedObjects[Type])
+                Instantiate(CachedObjects[Type], transform.position, transform.rotation).SetActive(true);
             
             // Destroy ourselves since we're done
             Destroy(gameObject);

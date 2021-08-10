@@ -9,7 +9,7 @@ namespace Atlas.MappingComponents.Sandbox
     /// </summary>
     public class ObjectSpawnPoint : MonoBehaviour
     {
-        public string ObjectId;
+        public string ObjectId = "";
         public bool SpawnOnStart = true;
 
         private IEnumerator Start()

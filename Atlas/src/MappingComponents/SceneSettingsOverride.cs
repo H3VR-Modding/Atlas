@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
-using Atlas.MappingComponents.Sandbox;
+﻿using System.Collections;
 using FistVR;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Atlas.MappingComponents
 {
@@ -13,6 +9,8 @@ namespace Atlas.MappingComponents
     /// </summary>
     public class SceneSettingsOverride : MonoBehaviour
     {
+        [Header("Atlas Settings")] public string GameMode = Constants.LoaderSandbox;
+
         [Header("Player Affordance")] public bool IsSpawnLockingEnabled = true;
         public bool AreHitBoxesEnabled = false;
         public bool DoesDamageGetRegistered = false;
@@ -54,33 +52,63 @@ namespace Atlas.MappingComponents
         public float BaseLoudness = 5f;
         public bool UsesWeaponHandlingAISound = false;
         public float MaxImpactSoundEventDistance = 15f;
-        
+
         private void Awake()
         {
             // If there's a camera left somewhere in the scene remove it. 
             Camera camera = FindObjectOfType<Camera>();
             if (camera) Destroy(camera.gameObject);
 
-            // Reset this flag just in case
-            PrefabSpawnPoint.ObjectsCached = false;
-            
-            // Additively load the mod blank scene to give us the important game bits
-            SceneManager.LoadScene("ModBlank_Simple", LoadSceneMode.Additive);
+            // Let the scene loader for this game mode take over
+            Atlas.Loaders[GameMode].Awake();
         }
 
         private IEnumerator Start()
         {
+            // Wait one frame for everything to get setup and then let the scene loader take over
             yield return null;
-            
-            // Once the scene is loaded we can get the important objects and cache them.
-            GameObject[] objects = SceneManager.GetSceneByName("ModBlank_Simple").GetRootGameObjects();
-            PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.ItemSpawner] = objects.First(x => x.name == "ItemSpawner");
-            PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.Destructobin] = objects.First(x => x.name == "Destructobin");
-            PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.SosigSpawner] = objects.First(x => x.name == "SosigSpawner");
-            PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.BangerDetonator] = objects.First(x => x.name == "BangerDetonator");
-            PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.WhizzBangADinger] = objects.First(x => x.name == "WhizzBangADinger2");
-            foreach (GameObject obj in PrefabSpawnPoint.CachedObjects.Values) obj.SetActive(false);
-            PrefabSpawnPoint.ObjectsCached = true;
+            yield return Atlas.Loaders[GameMode].Start();
+        }
+
+        internal void ApplyOverrides(FVRSceneSettings self)
+        {
+            self.IsSpawnLockingEnabled = IsSpawnLockingEnabled;
+            self.AreHitboxesEnabled = AreHitBoxesEnabled;
+            self.DoesDamageGetRegistered = DoesDamageGetRegistered;
+            self.MaxPointingDistance = MaxPointingDistance;
+            self.MaxProjectileRange = MaxProjectileRange;
+            self.ForcesCasingDespawn = ForcesCasingDespawn;
+            self.IsGravityForced = IsGravityForced;
+            self.ForcedPhysGravity = ForcedPhysGravity;
+            self.IsLocoTeleportAllowed = IsLocoTeleportAllowed;
+            self.IsLocoSlideAllowed = IsLocoSlideAllowed;
+            self.IsLocoDashAllowed = IsLocoDashAllowed;
+            self.IsLocoTouchpadAllowed = IsLocoTouchpadAllowed;
+            self.IsLocoArmSwingerAllowed = IsLocoArmSwingerAllowed;
+            self.DoesTeleportUseCooldown = DoesTeleportUseCooldown;
+            self.DoesAllowAirControl = DoesAllowAirControl;
+            self.UsesMaxSpeedClamp = UseMaxSpeedClamp;
+            self.MaxSpeedClamp = MaxSpeedClamp;
+            self.UsesPlayerCatcher = UsesPlayerCatcher;
+            self.CatchHeight = CatchHeight;
+            self.DefaultPlayerIFF = DefaultPlayerIFF;
+            self.DoesPlayerRespawnOnDeath = DoesPlayerRespawnOnDeath;
+            self.PlayerDeathFade = PlayerDeathFade;
+            self.PlayerRespawnLoadDelay = PlayerRespawnLoadDelay;
+            self.SceneToLoadOnDeath = SceneToLoadOnDeath;
+            self.DoesUseHealthBar = DoesUseHealthBar;
+            self.IsQuickbeltSwappingAllowed = IsQuickbeltSwappingAllowed;
+            self.AreQuickbeltSlotsEnabled = AreQuickbeltSlotsEnabled;
+            self.ConfigQuickbeltOnLoad = ConfigQuickbeltOnLoad;
+            self.QuickbeltToConfig = QuickbeltToConfig;
+            self.IsSceneLowLight = IsSceneLowLight;
+            self.IsAmmoInfinite = IsAmmoInfinite;
+            self.AllowsInfiniteAmmoMags = AllowsInfiniteAmmoMags;
+            self.UsesUnlockSystem = UsesUnlockSystem;
+            self.DefaultSoundEnvironment = DefaultSoundEnvironment;
+            self.BaseLoudness = BaseLoudness;
+            self.UsesWeaponHandlingAISound = UsesWeaponHandlingAISound;
+            self.MaxImpactSoundEventDistance = MaxImpactSoundEventDistance;
         }
     }
 }

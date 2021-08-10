@@ -1,4 +1,9 @@
-﻿namespace Atlas
+﻿using System;
+using System.Collections.Generic;
+using Atlas.Loaders;
+using BepInEx.Logging;
+
+namespace Atlas
 {
     /// <summary>
     /// Static class for interfacing with Atlas
@@ -14,5 +19,19 @@
         /// The SceneInfo for the currently loaded custom scene or null if the current scene is not custom
         /// </summary>
         public static SceneInfo? CurrentScene { get; internal set; }
+
+        /// <summary>
+        /// Registers a new scene loader
+        /// </summary>
+        /// <param name="mode">The ID of the mode</param>
+        /// <param name="loader">The loader to register</param>
+        public static void AddLoader(string mode, ISceneLoader loader)
+        {
+            Loaders.Add(mode, loader);
+        }
+        
+        internal static readonly Dictionary<string, ISceneLoader> Loaders = new();
+
+        internal static ManualLogSource Logger = null!;
     }
 }

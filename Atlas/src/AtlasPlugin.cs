@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.IO;
+using Atlas.Loaders;
 using BepInEx;
 using FistVR;
 using Sodalite.Api;
@@ -17,11 +18,18 @@ namespace Atlas
         
         public AtlasPlugin()
         {
+            // Setup our logger
+            Atlas.Logger = Logger;
+            
             // Apply our hooks
             _hooks.Hook();
             
             // Wrist menu button for debugging
             WristMenuAPI.Buttons.Add(new WristMenuButton("Debug Load", () => StartCoroutine(DebugLoadScene())));
+            
+            // Register our own loaders
+            Atlas.AddLoader(Constants.LoaderSandbox, new SandboxLoader());
+            Atlas.AddLoader(Constants.LoaderTakeAndHold, new TakeAndHoldLoader());
         }
 
         private IEnumerator DebugLoadScene()
