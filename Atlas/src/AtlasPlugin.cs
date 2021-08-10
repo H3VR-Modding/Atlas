@@ -13,14 +13,12 @@ namespace Atlas
     [BepInProcess("h3vr.exe")]
     public class AtlasPlugin : BaseUnityPlugin
     {
+        private Hooks _hooks = new();
+        
         public AtlasPlugin()
         {
-            // Patch for re-initializing the scene if loading a custom level
-            On.FistVR.FVRSceneSettings.Start += (orig, self) =>
-            {
-                if (Atlas.IsCustomLevel) GM.Instance.InitScene();
-                orig(self);
-            };
+            // Apply our hooks
+            _hooks.Hook();
             
             // Wrist menu button for debugging
             WristMenuAPI.Buttons.Add(new WristMenuButton("Debug Load", () => StartCoroutine(DebugLoadScene())));
