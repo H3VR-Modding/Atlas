@@ -36,8 +36,8 @@ namespace Atlas
         {
             // Load the custom scene
             Atlas.IsSceneLoadInitiatedByMe = true;
-            _loadedDebugScene = AssetBundle.LoadFromFile(Path.Combine(Paths.PluginPath, "debugscene"));
-            yield return SceneManager.LoadSceneAsync(_loadedDebugScene.GetAllScenePaths()[0]);
+            if (!_loadedDebugScene) _loadedDebugScene = AssetBundle.LoadFromFile(Path.Combine(Paths.PluginPath, "debugscene"));
+            yield return SceneManager.LoadSceneAsync(_loadedDebugScene!.GetAllScenePaths()[0]);
         }
     }
 }
