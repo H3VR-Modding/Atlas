@@ -23,11 +23,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Assembly-CSharp">
-            <HintPath>..\libs\Assembly-CSharp_publicized.dll</HintPath>
+        <Reference Include="Assembly-CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\libs\Assembly-CSharp.refstub.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\libs\Assembly-CSharp-firstpass_publicized.dll</HintPath>
+            <HintPath>..\libs\Assembly-CSharp-firstpass.refstub.dll</HintPath>
         </Reference>
         <Reference Include="MMHOOK_Assembly-CSharp">
             <HintPath>..\libs\MMHOOK_Assembly-CSharp.dll</HintPath>

@@ -32,6 +32,14 @@ namespace Atlas
         
         internal static readonly Dictionary<string, ISceneLoader> Loaders = new();
 
+        /// <summary>
+        /// Internal logger. Helpful for logging stuff in static contexts
+        /// </summary>
         internal static ManualLogSource Logger = null!;
+        
+        /// <summary>
+        /// Internal state variable. Used to determine the correct value of <see cref="IsCustomLevel"/>
+        /// </summary>
+        internal static bool IsSceneLoadInitiatedByMe = false;
     }
 }

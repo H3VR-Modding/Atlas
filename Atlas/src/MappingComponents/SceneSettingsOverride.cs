@@ -14,7 +14,7 @@ namespace Atlas.MappingComponents
         [Header("Player Affordance")] public bool IsSpawnLockingEnabled = true;
         public bool AreHitBoxesEnabled = false;
         public bool DoesDamageGetRegistered = false;
-        public float MaxPointingDistance = 1f;
+        public float MaxPointingDistance = 2f;
         public float MaxProjectileRange = 500f;
         public bool ForcesCasingDespawn = false;
         public bool IsGravityForced = false;

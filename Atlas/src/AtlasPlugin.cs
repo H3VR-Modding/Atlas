@@ -2,7 +2,6 @@
 using System.IO;
 using Atlas.Loaders;
 using BepInEx;
-using FistVR;
 using Sodalite.Api;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,7 +13,8 @@ namespace Atlas
     [BepInProcess("h3vr.exe")]
     public class AtlasPlugin : BaseUnityPlugin
     {
-        private Hooks _hooks = new();
+        private readonly Hooks _hooks = new();
+        private AssetBundle? _loadedDebugScene;
         
         public AtlasPlugin()
         {
@@ -25,8 +25,8 @@ namespace Atlas
             _hooks.Hook();
             
             // Wrist menu button for debugging
-            WristMenuAPI.Buttons.Add(new WristMenuButton("Debug Load", () => StartCoroutine(DebugLoadScene())));
-            
+            WristMenuAPI.Buttons.Add(new WristMenuButton("Debug Load", (_, _) => StartCoroutine(DebugLoadScene())));
+
             // Register our own loaders
             Atlas.AddLoader(Constants.LoaderSandbox, new SandboxLoader());
             Atlas.AddLoader(Constants.LoaderTakeAndHold, new TakeAndHoldLoader());
@@ -35,9 +35,9 @@ namespace Atlas
         private IEnumerator DebugLoadScene()
         {
             // Load the custom scene
-            Atlas.IsCustomLevel = true;
-            AssetBundle sceneBundle = AssetBundle.LoadFromFile(Path.Combine(Paths.PluginPath, "debugscene"));
-            yield return SceneManager.LoadSceneAsync(sceneBundle.GetAllScenePaths()[0]);
+            Atlas.IsSceneLoadInitiatedByMe = true;
+            _loadedDebugScene = AssetBundle.LoadFromFile(Path.Combine(Paths.PluginPath, "debugscene"));
+            yield return SceneManager.LoadSceneAsync(_loadedDebugScene.GetAllScenePaths()[0]);
         }
     }
 }
