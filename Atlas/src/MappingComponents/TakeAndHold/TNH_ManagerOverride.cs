@@ -41,6 +41,7 @@ namespace Atlas.MappingComponents.TakeAndHold
 
             // Fix some references that may not have been set
             foreach (var supplyPoint in manager.SupplyPoints) supplyPoint.M = manager;
+            foreach (var holdPoint in manager.HoldPoints) holdPoint.M = manager;
             
             // Generate a point sequence based on the info provided in the editor
             manager.PossibleSequnces = new List<TNH_PointSequence>();

@@ -1,71 +1,77 @@
-﻿using Atlas.MappingComponents;
+﻿using System.Collections;
+using Atlas.MappingComponents;
 using Atlas.MappingComponents.TakeAndHold;
 using FistVR;
+using Sodalite.Api;
 using UnityEngine;
 
 namespace Atlas
 {
-    internal class Hooks
+    public partial class AtlasPlugin
     {
-        public void Hook()
+        private static void FVRSceneSettingsOnAwake(On.FistVR.FVRSceneSettings.orig_Awake orig, FVRSceneSettings self)
         {
-            On.FistVR.FVRSceneSettings.Awake += FVRSceneSettingsOnAwake;
-            On.FistVR.FVRReverbSystem.Awake += FVRReverbSystemOnAwake;
-            On.FistVR.TNH_Manager.Start += TNH_ManagerOnStart;
-        }
-
-        public void Unhook()
-        {
-            On.FistVR.FVRSceneSettings.Awake -= FVRSceneSettingsOnAwake;
-            On.FistVR.FVRReverbSystem.Awake -= FVRReverbSystemOnAwake;
-            On.FistVR.TNH_Manager.Start -= TNH_ManagerOnStart;
-        }
-
-        private void FVRReverbSystemOnAwake(On.FistVR.FVRReverbSystem.orig_Awake orig, FVRReverbSystem self)
-        {
-            if (Atlas.IsCustomLevel)
-            {
-                // Copy over reverb stuff
-                ReverbSystemOverride reverb = Object.FindObjectOfType<ReverbSystemOverride>();
-                if (reverb) reverb.ApplyOverride(self);
-            }
-            
-            // Let orig happen
-            orig(self);
-        }
-
-        private void FVRSceneSettingsOnAwake(On.FistVR.FVRSceneSettings.orig_Awake orig, FVRSceneSettings self)
-        {
-            // If we initiated this scene load this is a custom level.
-            Atlas.IsCustomLevel = Atlas.IsSceneLoadInitiatedByMe;
-            Atlas.IsSceneLoadInitiatedByMe = false;
-            
-            // If we're loading a custom level
+            // If there's a scene settings override component somewhere in the scene we'll say this is a custom scene.
+            SceneSettingsOverride settings = FindObjectOfType<SceneSettingsOverride>();
+            Atlas.IsCustomLevel = (bool)settings;
             if (Atlas.IsCustomLevel)
             {
                 // Copy over all of the scene settings into this before initializing
-                SceneSettingsOverride settings = Object.FindObjectOfType<SceneSettingsOverride>();
-                if (settings) settings.ApplyOverrides(self);
+                settings.ApplyOverrides(self);
 
                 // Then we can re-initialize 
                 GM.Instance.InitScene();
+
+                // if we don't currently have a leaderboard lock get a new one
+                Atlas.LeaderboardLock ??= LeaderboardAPI.GetLeaderboardDisableLock();
             }
-            
+            else
+            {
+                // If we have a leaderboard lock dispose of it since this is now a vanilla scene
+                Atlas.LeaderboardLock?.Dispose();
+                Atlas.LeaderboardLock = null;
+            }
+
             // Let the original start do it's thing afterwards
             orig(self);
         }
-        
-        private void TNH_ManagerOnStart(On.FistVR.TNH_Manager.orig_Start orig, TNH_Manager self)
+
+        private static void TNH_ManagerOnStart(On.FistVR.TNH_Manager.orig_Start orig, TNH_Manager self)
         {
             // If we're loading a custom level
             if (Atlas.IsCustomLevel)
             {
-                TNH_ManagerOverride overrides = Object.FindObjectOfType<TNH_ManagerOverride>();
+                TNH_ManagerOverride overrides = FindObjectOfType<TNH_ManagerOverride>();
                 if (overrides) overrides.ApplyOverrides(self);
                 else Atlas.Logger.LogError("TNH_Manager overrides were missing, you need one in your scene!");
             }
 
             orig(self);
+        }
+
+        private void MainMenuScreenOnLoadScene(On.FistVR.MainMenuScreen.orig_LoadScene orig, MainMenuScreen self)
+        {
+            IEnumerator LoadBundleThenScene(CustomSceneInfo sceneInfo)
+            {
+                // We need to load the bundle first before we can do anything
+                if (!sceneInfo.SceneBundle)
+                {
+                    AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(sceneInfo.SceneBundleFile.FullName);
+                    yield return request;
+                    sceneInfo.SceneBundle = request.assetBundle;
+                }
+
+                // Update the scene name on the def so it points to the right (now loaded) scene
+                self.m_def.SceneName = sceneInfo.SceneBundle!.GetAllScenePaths()[0];
+
+                // Finally let original method take over.
+                orig(self);
+            }
+
+            // If this is a custom scene we have to load the asset bundle first
+            if (self.m_def is CustomMainMenuSceneDef sceneDef)
+                StartCoroutine(LoadBundleThenScene(sceneDef.CustomSceneInfo));
+            else orig(self);
         }
     }
 }

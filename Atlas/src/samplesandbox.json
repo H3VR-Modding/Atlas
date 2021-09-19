@@ -1,0 +1,7 @@
+{
+  "DisplayName": "Sample Sandbox",
+  "Identifier": "sample_sandbox",
+  "Mode": "sandbox",
+  "Author": "Nathan Gill",
+  "Description": "Explore what Atlas can do in this sample sandbox scene! I recommend playing this and checking everything out before using the editor tools."
+}

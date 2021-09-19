@@ -9,7 +9,7 @@ namespace Atlas.MappingComponents
     /// </summary>
     public class SceneSettingsOverride : MonoBehaviour
     {
-        [Header("Atlas Settings")] public string GameMode = Constants.LoaderSandbox;
+        [Header("Atlas Settings")] public string GameMode = AtlasConstants.LoaderSandbox;
 
         [Header("Player Affordance")] public bool IsSpawnLockingEnabled = true;
         public bool AreHitBoxesEnabled = false;

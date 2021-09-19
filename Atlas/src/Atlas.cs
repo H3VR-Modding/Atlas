@@ -6,6 +6,35 @@ using BepInEx.Logging;
 namespace Atlas
 {
     /// <summary>
+    /// Constant values for Atlas
+    /// </summary>
+    public static class AtlasConstants
+    {
+        /// <summary>
+        /// BepInEx Name of Atlas
+        /// </summary>
+        public const string Name = "Atlas";
+        
+        /// <summary>
+        /// BepInEx GUID of Atlas
+        /// </summary>
+        public const string Guid = "nrgill28.Atlas";
+        
+        /// <summary>
+        /// Version of Atlas
+        /// </summary>
+        public const string Version = "0.1.0";
+
+        /// <summary>
+        /// Stratum loader name for custom scenes
+        /// </summary>
+        public const string StratumLoaderName = "scene";
+        
+        internal const string LoaderSandbox = "sandbox";
+        internal const string LoaderTakeAndHold = "takeandhold";
+    }
+    
+    /// <summary>
     /// Static class for interfacing with Atlas
     /// </summary>
     public static class Atlas
@@ -18,7 +47,7 @@ namespace Atlas
         /// <summary>
         /// The SceneInfo for the currently loaded custom scene or null if the current scene is not custom
         /// </summary>
-        public static SceneInfo? CurrentScene { get; internal set; }
+        public static CustomSceneInfo? CurrentScene { get; internal set; }
 
         /// <summary>
         /// Registers a new scene loader
@@ -36,10 +65,10 @@ namespace Atlas
         /// Internal logger. Helpful for logging stuff in static contexts
         /// </summary>
         internal static ManualLogSource Logger = null!;
-        
+
         /// <summary>
-        /// Internal state variable. Used to determine the correct value of <see cref="IsCustomLevel"/>
+        /// Internal leaderboard lock. When loading custom scenes leaderboard calls are intercepted and blocked
         /// </summary>
-        internal static bool IsSceneLoadInitiatedByMe = false;
+        internal static IDisposable? LeaderboardLock;
     }
 }
