@@ -16,31 +16,18 @@
     </PropertyGroup>
     
     <ItemGroup>       
-      <PackageReference Include="BepInEx.Core" Version="5.4.11" />        
+      <PackageReference Include="BepInEx.Core" Version="5.4.16" />        
       <PackageReference Include="jnm2.ReferenceAssemblies.net35" Version="1.0.1" PrivateAssets="all" />  
       <PackageReference Include="Nullable" Version="1.3.0" PrivateAssets="all" />  
-      <PackageReference Include="UnityEngine.Core" Version="5.6.1" />  
-      <PackageReference Include="UnityEngine.UI" Version="5.6.1" />
+      <PackageReference Include="Sodalite" Version="1.1.0" />
     </ItemGroup>
     
     <ItemGroup>
-      <Reference Include="Assembly-CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\libs\Assembly-CSharp.refstub.dll</HintPath>
-      </Reference>
-      <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\libs\Assembly-CSharp-firstpass.refstub.dll</HintPath>
-      </Reference>
       <Reference Include="MMHOOK_Assembly-CSharp">
         <HintPath>..\libs\MMHOOK_Assembly-CSharp.dll</HintPath>
       </Reference>
       <Reference Include="MMHOOK_Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
         <HintPath>..\libs\MMHOOK_Assembly-CSharp-firstpass.dll</HintPath>
-      </Reference>
-      <Reference Include="Sodalite, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\Sodalite\src\Sodalite\bin\Release\net35\Sodalite.dll</HintPath>
-      </Reference>
-      <Reference Include="Sodalite.Patcher, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\Sodalite\src\Sodalite\bin\Release\net35\Sodalite.Patcher.dll</HintPath>
       </Reference>
       <Reference Include="Valve.Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=null">
         <HintPath>..\libs\Valve.Newtonsoft.Json.dll</HintPath>

@@ -4,6 +4,7 @@ using Atlas.MappingComponents.TakeAndHold;
 using FistVR;
 using Sodalite.Api;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Atlas
 {
@@ -56,8 +57,16 @@ namespace Atlas
                 // We need to load the bundle first before we can do anything
                 if (!sceneInfo.SceneBundle)
                 {
+                    // Create the load request
                     AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(sceneInfo.SceneBundleFile.FullName);
-                    yield return request;
+
+                    while (request.progress < 0.9f)
+                    {
+                        // Change the button text to loading since it may take a sec to load the scene bundle
+                        self.LoadSceneButton.GetComponentInChildren<Text>().text = $"Loading {request.progress:P1}";
+                        yield return null;
+                    }
+                    
                     sceneInfo.SceneBundle = request.assetBundle;
                 }
 
@@ -70,7 +79,9 @@ namespace Atlas
 
             // If this is a custom scene we have to load the asset bundle first
             if (self.m_def is CustomMainMenuSceneDef sceneDef)
+            {
                 StartCoroutine(LoadBundleThenScene(sceneDef.CustomSceneInfo));
+            }
             else orig(self);
         }
     }
