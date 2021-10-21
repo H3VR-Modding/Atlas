@@ -63,7 +63,7 @@ namespace Atlas
                     while (request.progress < 0.9f)
                     {
                         // Change the button text to loading since it may take a sec to load the scene bundle
-                        self.LoadSceneButton.GetComponentInChildren<Text>().text = $"Loading {request.progress:P1}";
+                        self.LoadSceneButton.GetComponentInChildren<Text>().text = $"Loading {request.progress*1.11f:P1}";
                         yield return null;
                     }
                     

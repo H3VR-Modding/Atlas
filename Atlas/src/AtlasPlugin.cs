@@ -69,12 +69,16 @@ namespace Atlas
                 screenPositions.Add(new Vector3(CircleX(ii), 0.5f + (jj * 2), CircleZ(ii)));
 
             // Trimming positions we don't want and order by -z.
-            screenPositions = screenPositions.Where(x => x.z < -7f).OrderByDescending(x => -x.z).ThenBy(x => Mathf.Abs(x.y - 4.15f)).ToList();
+            screenPositions = screenPositions.Where(x => x.z < -7f).OrderByDescending(x => -x.z)
+                .ThenBy(x => Mathf.Abs(x.y - 4.15f)).ToList();
+
+            // For compatibility with WurstMod only take one side of these. WurstMod will take the other.
+            screenPositions = screenPositions.Where(p => p.x > 0).ToList();
 
             // Modded Levels label.
             GameObject moddedScenesLabel = Instantiate(labelBase, labelBase.transform.parent);
-            moddedScenesLabel.transform.position = new Vector3(0f, 8.3f, -17.1f);
-            moddedScenesLabel.transform.localEulerAngles = new Vector3(-180f, 0f, 180f);
+            moddedScenesLabel.transform.position = new Vector3(4f, 8.3f, -15.5f);
+            moddedScenesLabel.transform.localEulerAngles = new Vector3(-180f, -30f, 180f);
             moddedScenesLabel.GetComponent<Text>().text = "Atlas Sandbox Scenes";
 
             // Create the screens for each scene
@@ -83,10 +87,12 @@ namespace Atlas
             for (int i = 0; i < sandboxScenes.Length; i++)
             {
                 // Create and position properly. Rename so patch can handle it properly.
-                MainMenuScenePointable screen = Instantiate(sceneScreenBase, sceneScreenBase.transform.parent).GetComponent<MainMenuScenePointable>();
+                MainMenuScenePointable screen = Instantiate(sceneScreenBase, sceneScreenBase.transform.parent)
+                    .GetComponent<MainMenuScenePointable>();
                 screen.transform.position = screenPositions[i];
                 //screen.transform.LookAt(Vector3.zero, Vector3.up);
-                screen.transform.localEulerAngles = new Vector3(0, 180 - (Mathf.Rad2Deg * Mathf.Atan(-screen.transform.position.x / screen.transform.position.z)), 0);
+                screen.transform.localEulerAngles = new Vector3(0,
+                    180 - (Mathf.Rad2Deg * Mathf.Atan(-screen.transform.position.x / screen.transform.position.z)), 0);
                 screen.transform.localScale = 0.5f * screen.transform.localScale;
 
                 // Make sure scaling is set correctly.
