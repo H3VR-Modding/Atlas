@@ -40,12 +40,23 @@ namespace Atlas
         [JsonProperty]
         public string Description { get; private set; } = "";
 
+        /// <summary>
+        /// The thumbnail as a texture.
+        /// </summary>
         public Texture2D? ThumbnailTexture { get; }
+        
+        /// <summary>
+        /// The thumbnail as a sprite
+        /// </summary>
         public Sprite? ThumbnailSprite { get; }
+        
+        // The file pointer to the scene bundle
         internal FileInfo SceneBundleFile { get; }
+        
+        // The loaded asset bundle
         internal AssetBundle? SceneBundle;
 
-        public CustomSceneInfo(FileInfo sceneBundle)
+        internal CustomSceneInfo(FileInfo sceneBundle)
         {
             SceneBundleFile = sceneBundle;
             var sceneJsonFile = new FileInfo(sceneBundle.FullName + ".json");
@@ -59,8 +70,13 @@ namespace Atlas
             if (!thumbnailFile.Exists) Atlas.Logger.LogWarning($"No {thumbnailFile.Name} was found. This scene will not have a thumbnail.");
             else
             {
+                // Load the texture
                 ThumbnailTexture = new Texture2D(1, 1);
                 ThumbnailTexture.LoadImage(File.ReadAllBytes(thumbnailFile.FullName));
+                
+                // And also convert it to a sprite
+                ThumbnailSprite = Sprite.Create(ThumbnailTexture,
+                    new Rect(0, 0, ThumbnailTexture.width, ThumbnailTexture.height), new Vector2(0, 0));
             }
         }
     }

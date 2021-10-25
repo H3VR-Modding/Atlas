@@ -2,6 +2,7 @@
 using FistVR;
 using UnityEngine;
 
+// ReSharper disable StringLiteralTypo, IdentifierTypo, InconsistentNaming
 namespace Atlas.MappingComponents
 {
     public class AtlasPMat : PMat
@@ -77,8 +78,9 @@ namespace Atlas.MappingComponents
             WoodProp = -2101361410
         }
 
-        private static readonly Dictionary<MatDefEnum, string> MatDefResources = new Dictionary<MatDefEnum, string>()
+        private static readonly Dictionary<MatDefEnum, string> MatDefResources = new()
         {
+
             { MatDefEnum._Air, @"matdefs\_Air" },
             { MatDefEnum._Impenetrable, @"matdefs\structural\_Impenetrable" },
             { MatDefEnum.Armor_Solid, @"matdefs\structural\Armor_Solid" },

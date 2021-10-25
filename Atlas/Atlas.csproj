@@ -2,17 +2,27 @@
 
     <PropertyGroup>
         <TargetFramework>net35</TargetFramework>
-        <LangVersion>9</LangVersion>
+        <LangVersion>default</LangVersion>
         <Nullable>enable</Nullable>
         <RootNamespace>Plugin</RootNamespace>
+        <Configurations>Runtime;Editor</Configurations>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PropertyGroup Condition=" '$(Configuration)' == 'Runtime' ">
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
+      <DefineConstants>TRACE;RUNTIME;</DefineConstants>
+      <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PropertyGroup Condition=" '$(Configuration)' == 'Editor' ">
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+      <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+      <DefineConstants>TRACE;EDITOR;</DefineConstants>
+      <Optimize>true</Optimize>
+      <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
     
     <ItemGroup>       
@@ -21,16 +31,13 @@
       <PackageReference Include="Nullable" Version="1.3.0" PrivateAssets="all" />  
       <PackageReference Include="Sodalite" Version="1.1.0" />
     </ItemGroup>
-    
-    <ItemGroup>
+
+    <ItemGroup Condition="'$(Configuration)'=='Runtime'">
       <Reference Include="MMHOOK_Assembly-CSharp">
         <HintPath>..\libs\MMHOOK_Assembly-CSharp.dll</HintPath>
       </Reference>
       <Reference Include="MMHOOK_Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
         <HintPath>..\libs\MMHOOK_Assembly-CSharp-firstpass.dll</HintPath>
-      </Reference>
-      <Reference Include="Valve.Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\libs\Valve.Newtonsoft.Json.dll</HintPath>
       </Reference>
     </ItemGroup>
     

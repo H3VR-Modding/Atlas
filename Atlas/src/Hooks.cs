@@ -10,6 +10,16 @@ namespace Atlas
 {
     public partial class AtlasPlugin
     {
+        private static void ApplyHooks()
+        {
+#if RUNTIME
+            On.FistVR.FVRSceneSettings.Awake += FVRSceneSettingsOnAwake;
+            On.FistVR.TNH_Manager.Start += TNH_ManagerOnStart;
+            On.FistVR.MainMenuScreen.LoadScene += MainMenuScreenOnLoadScene;
+#endif
+        }
+        
+#if RUNTIME
         private static void FVRSceneSettingsOnAwake(On.FistVR.FVRSceneSettings.orig_Awake orig, FVRSceneSettings self)
         {
             // If there's a scene settings override component somewhere in the scene we'll say this is a custom scene.
@@ -84,5 +94,6 @@ namespace Atlas
             }
             else orig(self);
         }
+#endif
     }
 }

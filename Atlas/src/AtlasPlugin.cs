@@ -24,11 +24,9 @@ namespace Atlas
         {
             // Setup our logger
             Atlas.Logger = Logger;
-
+            
             // Apply our hooks
-            On.FistVR.FVRSceneSettings.Awake += FVRSceneSettingsOnAwake;
-            On.FistVR.TNH_Manager.Start += TNH_ManagerOnStart;
-            On.FistVR.MainMenuScreen.LoadScene += MainMenuScreenOnLoadScene;
+            ApplyHooks();
 
             // Register our own loaders
             Atlas.AddLoader(AtlasConstants.LoaderSandbox, new SandboxLoader());
@@ -40,7 +38,7 @@ namespace Atlas
             // DEBUG: Load the debug scene
             RegisterScene(new FileInfo(Path.Combine(Paths.PluginPath, "samplesandbox")));
         }
-
+        
         private void RegisterScene(FileSystemInfo handle)
         {
             // Expect a file (or throw)
@@ -48,9 +46,11 @@ namespace Atlas
             if (!file.Exists) throw new FileNotFoundException("Path points to non-existing file!");
 
             // Add a new scene info to our list
-            _sceneInfos.Add(new CustomSceneInfo(file));
+            CustomSceneInfo info = new(file);
+            _sceneInfos.Add(info);
+            Logger.LogInfo($"Registered {info.DisplayName} by {info.Author}.");
         }
-
+        
         private IEnumerator SceneManagerOnSceneLoaded(Scene scene)
         {
             // We only use this callback for setting up the main menu level selector panel
@@ -90,7 +90,6 @@ namespace Atlas
                 MainMenuScenePointable screen = Instantiate(sceneScreenBase, sceneScreenBase.transform.parent)
                     .GetComponent<MainMenuScenePointable>();
                 screen.transform.position = screenPositions[i];
-                //screen.transform.LookAt(Vector3.zero, Vector3.up);
                 screen.transform.localEulerAngles = new Vector3(0,
                     180 - (Mathf.Rad2Deg * Mathf.Atan(-screen.transform.position.x / screen.transform.position.z)), 0);
                 screen.transform.localScale = 0.5f * screen.transform.localScale;
