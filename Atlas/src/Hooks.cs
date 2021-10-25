@@ -10,7 +10,7 @@ namespace Atlas
 {
     public partial class AtlasPlugin
     {
-        private static void ApplyHooks()
+        private void ApplyHooks()
         {
 #if RUNTIME
             On.FistVR.FVRSceneSettings.Awake += FVRSceneSettingsOnAwake;
