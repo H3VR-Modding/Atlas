@@ -67,7 +67,7 @@ namespace Atlas
             JsonConvert.PopulateObject(File.ReadAllText(sceneJsonFile.FullName), this);
             
             // Missing thumbnail file is non-fatal but we still want to let the user know.
-            if (!thumbnailFile.Exists) Atlas.Logger.LogWarning($"No {thumbnailFile.Name} was found. This scene will not have a thumbnail.");
+            if (!thumbnailFile.Exists) AtlasPlugin.Logger.LogWarning($"No {thumbnailFile.Name} was found. This scene will not have a thumbnail.");
             else
             {
                 // Load the texture

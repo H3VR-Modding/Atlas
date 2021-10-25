@@ -32,7 +32,7 @@ namespace Atlas.MappingComponents.TakeAndHold
         internal void ApplyOverrides(TNH_Manager manager)
         {
             // Setup the simple stuff
-            manager.LevelName = Atlas.CurrentScene?.Identifier;
+            manager.LevelName = AtlasPlugin.CurrentScene?.Identifier;
             manager.IsBigLevel = IsBigLevel;
             manager.UsesClassicPatrolBehavior = UsesClassicPatrolBehaviour;
             manager.HoldPoints = HoldPoints;

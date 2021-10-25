@@ -60,14 +60,14 @@ namespace Atlas.MappingComponents
             if (camera) Destroy(camera.gameObject);
 
             // Let the scene loader for this game mode take over
-            Atlas.Loaders[GameMode].Awake();
+            AtlasPlugin.Loaders[GameMode].Awake();
         }
 
         private IEnumerator Start()
         {
             // Wait one frame for everything to get setup and then let the scene loader take over
             yield return null;
-            yield return Atlas.Loaders[GameMode].Start();
+            yield return AtlasPlugin.Loaders[GameMode].Start();
         }
 
         internal void ApplyOverrides(FVRSceneSettings self)

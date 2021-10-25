@@ -24,8 +24,8 @@ namespace Atlas
         {
             // If there's a scene settings override component somewhere in the scene we'll say this is a custom scene.
             SceneSettingsOverride settings = FindObjectOfType<SceneSettingsOverride>();
-            Atlas.IsCustomLevel = (bool)settings;
-            if (Atlas.IsCustomLevel)
+            IsPlayingCustomLevel = (bool)settings;
+            if (IsPlayingCustomLevel)
             {
                 // Copy over all of the scene settings into this before initializing
                 settings.ApplyOverrides(self);
@@ -34,13 +34,13 @@ namespace Atlas
                 GM.Instance.InitScene();
 
                 // if we don't currently have a leaderboard lock get a new one
-                Atlas.LeaderboardLock ??= LeaderboardAPI.GetLeaderboardDisableLock();
+                LeaderboardLock ??= LeaderboardAPI.GetLeaderboardDisableLock();
             }
             else
             {
                 // If we have a leaderboard lock dispose of it since this is now a vanilla scene
-                Atlas.LeaderboardLock?.Dispose();
-                Atlas.LeaderboardLock = null;
+                LeaderboardLock?.Dispose();
+                LeaderboardLock = null;
             }
 
             // Let the original start do it's thing afterwards
@@ -50,11 +50,11 @@ namespace Atlas
         private static void TNH_ManagerOnStart(On.FistVR.TNH_Manager.orig_Start orig, TNH_Manager self)
         {
             // If we're loading a custom level
-            if (Atlas.IsCustomLevel)
+            if (IsPlayingCustomLevel)
             {
                 TNH_ManagerOverride overrides = FindObjectOfType<TNH_ManagerOverride>();
                 if (overrides) overrides.ApplyOverrides(self);
-                else Atlas.Logger.LogError("TNH_Manager overrides were missing, you need one in your scene!");
+                else Logger.LogError("TNH_Manager overrides were missing, you need one in your scene!");
             }
 
             orig(self);
