@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/ash-hat/thunderstore.manifest/v1/schema.json",
+  "name": "Atlas",
+  "version_number": "{VERSION}",
+  "website_url": "https://github.com/H3VR-Modding/Atlas",
+  "description": "The next generation of mapping tools for H3VR",
+  "dependencies": [
+    "nrgill28-Sodalite-1.1.0"
+  ],
+  "author": "nrgill28"
+}
