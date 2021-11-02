@@ -7,6 +7,7 @@ using Atlas.Loaders;
 using BepInEx;
 using BepInEx.Logging;
 using FistVR;
+using On.Steamworks;
 using Sodalite;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -23,12 +24,12 @@ namespace Atlas
         /// BepInEx Name of Atlas
         /// </summary>
         public const string Name = "Atlas";
-        
+
         /// <summary>
         /// BepInEx GUID of Atlas
         /// </summary>
         public const string Guid = "nrgill28.Atlas";
-        
+
         /// <summary>
         /// Version of Atlas
         /// </summary>
@@ -37,71 +38,36 @@ namespace Atlas
         internal const string LoaderSandbox = "sandbox";
         internal const string LoaderTakeAndHold = "takeandhold";
     }
-    
+
     [BepInPlugin(AtlasConstants.Guid, AtlasConstants.Name, AtlasConstants.Version)]
     [BepInDependency(SodaliteConstants.Guid, SodaliteConstants.Version)]
     [BepInProcess("h3vr.exe")]
     public partial class AtlasPlugin : BaseUnityPlugin
     {
-        /// <summary>
-        /// True if the currently loaded level is custom, false if it's vanilla
-        /// </summary>
-        public static bool IsPlayingCustomLevel { get; internal set; }
-        
-        /// <summary>
-        /// The SceneInfo for the currently loaded custom scene or null if the current scene is not custom
-        /// </summary>
-        public static CustomSceneInfo? CurrentScene { get; internal set; }
-        
-        internal static readonly Dictionary<string, ISceneLoader> Loaders = new();
-        internal static readonly List<CustomSceneInfo> SceneInfos = new();
+        #region Plugin stuff
+
         internal new static ManualLogSource Logger = null!;
+        internal static AtlasPlugin Instance = null!;
         internal static IDisposable? LeaderboardLock;
-        
+        internal static CustomSceneInfo? LastLoadedScene;
+
         public void Awake()
         {
             // Setup our logger
+            Instance = this;
             Logger = base.Logger;
-            
+
             // Apply our hooks
             ApplyHooks();
 
             // Register our own loaders
-            RegisterLoader(AtlasConstants.LoaderSandbox, new SandboxLoader());
-            RegisterLoader(AtlasConstants.LoaderTakeAndHold, new TakeAndHoldLoader());
+            Loaders[AtlasConstants.LoaderSandbox] = new SandboxLoader();
+            Loaders[AtlasConstants.LoaderTakeAndHold] = new TakeAndHoldLoader();
 
             // Callback for when a scene is loaded
             SceneManager.sceneLoaded += (scene, _) => StartCoroutine(SceneManagerOnSceneLoaded(scene));
         }
 
-        /// <summary>
-        /// Registers a new scene loader
-        /// </summary>
-        /// <param name="mode">The ID of the mode</param>
-        /// <param name="loader">The loader to register</param>
-        public static void RegisterLoader(string mode, ISceneLoader loader)
-        {
-            Loaders.Add(mode, loader);
-        }
-
-        /// <summary>
-        /// Registers a scene with Atlas given a file path
-        /// </summary>
-        /// <param name="sceneBundleFilePath">Path of the scene's asset bundle</param>
-        /// <exception cref="FileNotFoundException">File does not exist</exception>
-        public static void RegisterScene(string sceneBundleFilePath)
-        {
-            // Expect a file (or throw)
-            FileInfo file = new(sceneBundleFilePath);
-            Logger.LogDebug($"Attempting to load scene from bundle at: {sceneBundleFilePath}");
-            if (!file.Exists) throw new FileNotFoundException("Path points to non-existing file!");
-
-            // Add a new scene info to our list
-            CustomSceneInfo info = new(file);
-            SceneInfos.Add(info);
-            Logger.LogInfo($"Registered {info.DisplayName} by {info.Author}.");
-        }
-        
         private IEnumerator SceneManagerOnSceneLoaded(Scene scene)
         {
             // We only use this callback for setting up the main menu level selector panel
@@ -133,7 +99,8 @@ namespace Atlas
             moddedScenesLabel.GetComponent<Text>().text = "Atlas Sandbox Scenes";
 
             // Create the screens for each scene
-            CustomSceneInfo[] sandboxScenes = SceneInfos.Where(x => x.Mode == AtlasConstants.LoaderSandbox).ToArray();
+            CustomSceneInfo[] sandboxScenes =
+                RegisteredScenes.Where(x => x.Mode == AtlasConstants.LoaderSandbox).ToArray();
             int mainTex = Shader.PropertyToID("_MainTex");
             for (int i = 0; i < sandboxScenes.Length; i++)
             {
@@ -162,5 +129,68 @@ namespace Atlas
                 screen.GetComponent<MeshRenderer>().material.SetTexture(mainTex, sceneInfo.ThumbnailTexture);
             }
         }
+
+        #endregion
+
+        #region API Stuff
+
+        private static readonly List<CustomSceneInfo> RegisteredScenes = new();
+
+        /// <summary>
+        /// The SceneInfo for the currently loaded custom scene or null if the current scene is not custom
+        /// </summary>
+        public static CustomSceneInfo? CurrentScene { get; internal set; }
+
+        /// <summary>
+        /// Collection of all registered custom scene infos
+        /// </summary>
+        public static ICollection<CustomSceneInfo> CustomSceneInfos => RegisteredScenes.AsReadOnly();
+
+        /// <summary>
+        /// Dictionary of loaders
+        /// </summary>
+        public static readonly IDictionary<string, ISceneLoader> Loaders = new Dictionary<string, ISceneLoader>();
+
+        /// <summary>
+        /// Registers a scene with Atlas given a file path
+        /// </summary>
+        /// <param name="sceneBundleFilePath">Path of the scene's asset bundle</param>
+        /// <exception cref="FileNotFoundException">File does not exist</exception>
+        public static void RegisterScene(string sceneBundleFilePath)
+        {
+            // Expect a file (or throw)
+            FileInfo file = new(sceneBundleFilePath);
+            Logger.LogDebug($"Attempting to load scene from bundle at: {sceneBundleFilePath}");
+            if (!file.Exists) throw new FileNotFoundException("Path points to non-existing file!");
+
+            // Add a new scene info to our list
+            CustomSceneInfo info = new(file);
+            RegisteredScenes.Add(info);
+            Logger.LogInfo($"Registered {info.DisplayName} by {info.Author}.");
+        }
+
+        public static void LoadCustomScene(CustomSceneInfo sceneInfo) =>
+            Instance.StartCoroutine(LoadCustomScene_Internal(sceneInfo));
+
+        private static IEnumerator LoadCustomScene_Internal(CustomSceneInfo sceneInfo)
+        {
+            // If the scene bundle isn't loaded we need to do that first
+            if (!sceneInfo.SceneBundle)
+            {
+                // Create the load request and wait for it to finish
+                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(sceneInfo.SceneBundleFile.FullName);
+                yield return request;
+                
+                // Get the bundle and assign it
+                sceneInfo.SceneBundle = request.assetBundle;
+            }
+            
+            // Use the SteamVR loading stuff because it's better
+            LastLoadedScene = sceneInfo;
+            string sceneName = sceneInfo.SceneBundle!.GetAllScenePaths()[0];
+            SteamVR_LoadLevel.Begin(sceneName);
+        }
+
+        #endregion
     }
 }
