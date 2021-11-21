@@ -15,7 +15,7 @@ For map authors; while it is possible to update your maps from WurstMod to Atlas
 ## How do I make a map?
 There will be some guides available Soon™ for how to get an Atlas project setup and showcase the important bits of creating scenes specifically for H3VR. Past these basics creating scenes in Atlas is mostly just the regular Unity workflow, so if you are not familiar with using the Unity Editor then you will need to find external guides for that.
 
-In the meantime, the sample project is available for you to download and use: https://github.com/H3VR-Modding/AtlasSampleProject
+In the meantime, the sample project is available for you to download and use: https://github.com/H3VR-Modding/MeatKit
 
 ## How can I help?
 If you want to help contribute to Atlas and future modding tools for H3VR, consider supporting me on Ko-fi: https://ko-fi.com/nrgill28!
