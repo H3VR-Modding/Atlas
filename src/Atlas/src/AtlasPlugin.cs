@@ -7,7 +7,6 @@ using Atlas.Loaders;
 using BepInEx;
 using BepInEx.Logging;
 using FistVR;
-using On.Steamworks;
 using Sodalite;
 using UnityEngine;
 using UnityEngine.SceneManagement;

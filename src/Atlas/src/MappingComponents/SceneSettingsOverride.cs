@@ -55,10 +55,6 @@ namespace Atlas.MappingComponents
 
         private void Awake()
         {
-            // If there's a camera left somewhere in the scene remove it. 
-            Camera camera = FindObjectOfType<Camera>();
-            if (camera) Destroy(camera.gameObject);
-
             // Let the scene loader for this game mode take over
             AtlasPlugin.Loaders[GameMode].Awake();
         }

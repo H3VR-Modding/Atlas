@@ -10,41 +10,37 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Runtime' ">
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
-      <DefineConstants>TRACE;RUNTIME;</DefineConstants>
-      <PlatformTarget>x64</PlatformTarget>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DebugSymbols>true</DebugSymbols>
+        <Optimize>false</Optimize>
+        <DebugType>Full</DebugType>
+        <DefineConstants>TRACE;RUNTIME;</DefineConstants>
+        <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Editor' ">
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
-      <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
-      <DefineConstants>TRACE;EDITOR;</DefineConstants>
-      <Optimize>true</Optimize>
-      <PlatformTarget>x64</PlatformTarget>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DebugSymbols>true</DebugSymbols>
+        <Optimize>false</Optimize>
+        <DebugType>Full</DebugType>
+        <DefineConstants>TRACE;EDITOR;</DefineConstants>
+        <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
-    
-    <ItemGroup>       
-      <PackageReference Include="BepInEx.Core" Version="5.4.16" />        
-      <PackageReference Include="jnm2.ReferenceAssemblies.net35" Version="1.0.1" PrivateAssets="all" />  
-      <PackageReference Include="Nullable" Version="1.3.0" PrivateAssets="all" />  
-      <PackageReference Include="Sodalite" Version="1.1.0" />
+
+    <ItemGroup>
+        <PackageReference Include="BepInEx.Core" Version="5.4.16"/>
+        <PackageReference Include="jnm2.ReferenceAssemblies.net35" Version="1.0.1" PrivateAssets="all"/>
+        <PackageReference Include="Nullable" Version="1.3.0" PrivateAssets="all"/>
+        <PackageReference Include="Sodalite" Version="1.1.0"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(Configuration)'=='Runtime'">
-      <Reference Include="MMHOOK_Assembly-CSharp">
-        <HintPath>..\libs\MMHOOK_Assembly-CSharp.dll</HintPath>
-      </Reference>
-      <Reference Include="MMHOOK_Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\libs\MMHOOK_Assembly-CSharp-firstpass.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-    
-    <ItemGroup>
-      <None Update="src\samplesandbox.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <Reference Include="MMHOOK_Assembly-CSharp">
+            <HintPath>..\libs\MMHOOK_Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="MMHOOK_Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>..\libs\MMHOOK_Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>
