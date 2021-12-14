@@ -32,7 +32,7 @@ namespace Atlas
         /// <summary>
         /// Version of Atlas
         /// </summary>
-        public const string Version = "0.1.0";
+        public const string Version = "0.1.1";
 
         internal const string LoaderSandbox = "sandbox";
         internal const string LoaderTakeAndHold = "takeandhold";
@@ -53,8 +53,8 @@ namespace Atlas
         public void Awake()
         {
             // Setup our logger
-            Instance = this;
             Logger = base.Logger;
+            Instance = this;
 
             // Apply our hooks
             ApplyHooks();
@@ -167,10 +167,19 @@ namespace Atlas
             RegisteredScenes.Add(info);
             Logger.LogInfo($"Registered {info.DisplayName} by {info.Author}.");
         }
-
+        
+        public static CustomSceneInfo? GetCustomScene(string identifier) =>
+            RegisteredScenes.FirstOrDefault(x => x.Identifier == identifier);
+        
         public static void LoadCustomScene(CustomSceneInfo sceneInfo) =>
             Instance.StartCoroutine(LoadCustomScene_Internal(sceneInfo));
 
+        public static void LoadCustomScene(string identifier)
+        {
+            CustomSceneInfo? scene = GetCustomScene(identifier);
+            if (scene != null) LoadCustomScene(scene);
+        }
+        
         private static IEnumerator LoadCustomScene_Internal(CustomSceneInfo sceneInfo)
         {
             // If the scene bundle isn't loaded we need to do that first
