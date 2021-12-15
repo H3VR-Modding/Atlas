@@ -32,7 +32,7 @@ namespace Atlas
         /// <summary>
         /// Version of Atlas
         /// </summary>
-        public const string Version = "0.1.1";
+        public const string Version = "0.1.2";
 
         internal const string LoaderSandbox = "sandbox";
         internal const string LoaderTakeAndHold = "takeandhold";

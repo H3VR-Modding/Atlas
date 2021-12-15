@@ -113,6 +113,8 @@ namespace Atlas
         {
             foreach (var sceneInfo in RegisteredScenes.Where(s => s.Mode == AtlasConstants.LoaderTakeAndHold))
                 self.Levels.Add(new CustomLevelData(sceneInfo));
+
+            orig(self);
         }
 
         private void TNH_UIManagerOnUpdateLevelSelectDisplayAndLoader(
