@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using FistVR;
 using UnityEngine;
 
@@ -53,10 +54,22 @@ namespace Atlas.MappingComponents
         public bool UsesWeaponHandlingAISound = false;
         public float MaxImpactSoundEventDistance = 15f;
 
+        private List<AudioSource> _audioSources = new();
+        
         private void Awake()
         {
             // Let the scene loader for this game mode take over
             AtlasPlugin.Loaders[GameMode].Awake();
+            
+            // Apply a fix for any audio sources
+            foreach (var source in FindObjectsOfType<AudioSource>())
+            {
+                if (source.enabled)
+                {
+                    source.enabled = false;
+                    _audioSources.Add(source);
+                }
+            }
         }
 
         private IEnumerator Start()
@@ -64,6 +77,7 @@ namespace Atlas.MappingComponents
             // Wait one frame for everything to get setup and then let the scene loader take over
             yield return null;
             yield return AtlasPlugin.Loaders[GameMode].Start();
+            foreach (var source in _audioSources) source.enabled = true;
         }
 
         internal void ApplyOverrides(FVRSceneSettings self)

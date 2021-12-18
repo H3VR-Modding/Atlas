@@ -30,7 +30,11 @@ namespace Atlas.MappingComponents.Sandbox
         private IEnumerator SpawnAsync()
         {
             // Get the object and wait for it to load
-            FVRObject obj = IM.OD[ObjectId];
+            if (!IM.OD.TryGetValue(ObjectId, out var obj))
+            {
+                AtlasPlugin.Logger.LogWarning($"No object found with id '{ObjectId}'.");
+                yield break;
+            }
             var callback = obj.GetGameObjectAsync();
             yield return callback;
             

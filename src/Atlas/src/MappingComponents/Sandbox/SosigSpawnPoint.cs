@@ -1,4 +1,5 @@
-﻿using FistVR;
+﻿using System.Collections;
+using FistVR;
 using Sodalite.Api;
 using UnityEngine;
 
@@ -13,8 +14,9 @@ namespace Atlas.MappingComponents.Sandbox
         public bool SpawnActive;
         public Sosig.SosigOrder SpawnState;
 
-        public void Start()
+        public IEnumerator Start()
         {
+            yield return new WaitForEndOfFrame();
             if (SpawnOnStart) Spawn();
         }
 

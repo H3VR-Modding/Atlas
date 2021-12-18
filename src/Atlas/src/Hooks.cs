@@ -22,6 +22,12 @@ namespace Atlas
             On.FistVR.SceneLoader.LoadMG += SceneLoaderOnLoadMG;
             On.FistVR.TNH_UIManager.UpdateLevelSelectDisplayAndLoader +=
                 TNH_UIManagerOnUpdateLevelSelectDisplayAndLoader;
+            
+            // Patch this so that it doesn't throw an error if it's one frame too early.
+            On.FistVR.FVRReverbSystem.CheckPlayerEnvironment += (orig, self) =>
+            {
+                if (GM.CurrentPlayerBody) orig(self);
+            };
 #endif
         }
 
