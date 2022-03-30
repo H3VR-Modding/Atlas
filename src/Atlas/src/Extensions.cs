@@ -23,6 +23,8 @@ namespace Atlas
             Gizmos.color = color;
             foreach (Transform ii in markers)
             {
+                if (!ii) continue;
+                
                 Gizmos.matrix = ii.localToWorldMatrix;
                 Gizmos.DrawCube(center, size);
                 Gizmos.DrawLine(center, center + forward);
@@ -35,6 +37,8 @@ namespace Atlas
             Gizmos.color = color;
             foreach (Transform ii in markers)
             {
+                if (!ii) continue;
+                
                 Gizmos.matrix = ii.localToWorldMatrix;
                 Gizmos.DrawWireCube(center, size);
             }
@@ -45,6 +49,8 @@ namespace Atlas
             Gizmos.color = color;
             foreach (Transform ii in markers)
             {
+                if (!ii) continue;
+                
                 Gizmos.matrix = ii.localToWorldMatrix;
                 Gizmos.DrawSphere(center, radius);
             }

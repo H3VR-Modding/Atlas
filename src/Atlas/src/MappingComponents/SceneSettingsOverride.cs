@@ -54,7 +54,7 @@ namespace Atlas.MappingComponents
         public bool UsesWeaponHandlingAISound = false;
         public float MaxImpactSoundEventDistance = 15f;
 
-        private List<AudioSource> _audioSources = new();
+        private readonly List<AudioSource> _audioSources = new();
         
         private void Awake()
         {

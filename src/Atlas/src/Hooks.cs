@@ -48,7 +48,7 @@ namespace Atlas
                 GM.Instance.InitScene();
 
                 // if we don't currently have a leaderboard lock get a new one
-                LeaderboardLock ??= LeaderboardAPI.GetLeaderboardDisableLock();
+                LeaderboardLock ??= LeaderboardAPI.LeaderboardDisabled.TakeLock();
             }
             else
             {
@@ -129,7 +129,7 @@ namespace Atlas
             if (self.GetLevelData(self.CurLevelID) is CustomLevelData customLevelData)
             {
                 LastLoadedScene = customLevelData.SceneInfo;
-                LeaderboardLock ??= LeaderboardAPI.GetLeaderboardDisableLock();
+                LeaderboardLock ??= LeaderboardAPI.LeaderboardDisabled.TakeLock();
             }
             else
             {

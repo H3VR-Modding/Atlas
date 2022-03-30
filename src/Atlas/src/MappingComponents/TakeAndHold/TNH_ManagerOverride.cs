@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using FistVR;
 using Sodalite.Utilities;
@@ -13,19 +12,11 @@ namespace Atlas.MappingComponents.TakeAndHold
     /// </summary>
     public class TNH_ManagerOverride : MonoBehaviour
     {
-        [Serializable]
-        public class AtlasPointSequence
-        {
-            public bool GenerateAutomatically = true;
-            public AtlasSupplyPoint StartSupplyPoint = null!;
-            public AtlasHoldPoint[] HoldPoints = null!;
-        }
-
-        [Header("Game State")] public bool IsBigLevel = false;
+        /* These are not yet supported.
+        [Header("Game State")]
+        public bool IsBigLevel = false;
         public bool UsesClassicPatrolBehaviour = true;
-
-        [Header("Data Settings")] public AtlasPointSequence[] PossibleSequences = null!;
-        public TNH_SafePositionMatrix SafePosMatrix = null!;
+        */
 
         [Header("System Connections")] public List<AtlasHoldPoint> HoldPoints = null!;
         public List<AtlasSupplyPoint> SupplyPoints = null!;
@@ -38,7 +29,6 @@ namespace Atlas.MappingComponents.TakeAndHold
             GameObject templateSupplyPoint = GameObject.Find("SupplyPoint_0");
             GameObject templateHoldPoint = GameObject.Find("HoldPoint_0");
             GameObject templateBarrierSpawnPoint = templateHoldPoint.transform.Find("Barrier_SpawnPoint").gameObject;
-            CleanTemplateObjects(templateHoldPoint, templateSupplyPoint);
 
             // Initialize our new supply points now
             List<TNH_HoldPoint> realHoldPoints = new();
@@ -58,6 +48,8 @@ namespace Atlas.MappingComponents.TakeAndHold
         private TNH_SafePositionMatrix GenerateSafePositionMatrix(TNH_Manager manager)
         {
             TNH_SafePositionMatrix matrix = ScriptableObject.CreateInstance<TNH_SafePositionMatrix>();
+            matrix.Entries_HoldPoints = new List<TNH_SafePositionMatrix.PositionEntry>();
+            matrix.Entries_SupplyPoints = new List<TNH_SafePositionMatrix.PositionEntry>();
 
             // Loop over each hold point index
             for (var i = 0; i < manager.HoldPoints.Count; i++)
@@ -86,32 +78,42 @@ namespace Atlas.MappingComponents.TakeAndHold
             // I think the supply point entries are only used on the level start.
             // Also yes this method name has a typo haha.
             matrix.GenereateSupplyPointsData();
+
+            // Even with the above, the matrix.Entries_SupplyPoints[i].SafePositions_SupplyPoints does not get
+            // filled in... unsure what it is for exactly but my guess is determining which supply points are allowed to
+            // be a supply point in the first hold phase, given the supply point which the player spawns at
+            for (int i = 0; i < manager.SupplyPoints.Count; i++)
+            {
+                // For each possible sequence, get its matrix entry and start supply index
+                var entry = matrix.Entries_SupplyPoints[i];
+
+                // Then, fill in the missing list 
+                for (var j = 0; j < manager.SupplyPoints.Count; j++)
+                {
+                    // The supply point is allowed to be used if: it is not the spawning supply point
+                    // and it is not marked for only spawning
+                    AtlasSupplyPoint supplyPoint = SupplyPoints[j];
+                    entry.SafePositions_SupplyPoints.Add(i != j && !supplyPoint.OnlySpawn);
+                }
+            }
+
+
             return matrix;
         }
 
-        private TNH_PointSequence GeneratePointSequence(AtlasPointSequence sequence)
+        private TNH_PointSequence GeneratePointSequence()
         {
             // Create a sequence object
             var pointSequence = ScriptableObject.CreateInstance<TNH_PointSequence>();
-            if (sequence.GenerateAutomatically)
-            {
-                // TODO: Generate a sequence if it's selected
 
-                // Pick a starting point. If any of them are a force spawn, use that, otherwise use a random one.
-                AtlasSupplyPoint? supplyPoint = SupplyPoints.FirstOrDefault(s => s.ForceSpawnHere);
-                pointSequence.StartSupplyPointIndex =
-                    SupplyPoints.IndexOf(supplyPoint ? supplyPoint : SupplyPoints.GetRandom());
+            // Pick a starting point. If any of them are a force spawn, use that, otherwise use a random one.
+            AtlasSupplyPoint? supplyPoint = SupplyPoints.FirstOrDefault(s => s.ForceSpawnHere);
+            pointSequence.StartSupplyPointIndex =
+                SupplyPoints.IndexOf(supplyPoint ? supplyPoint : SupplyPoints.GetRandom());
 
-                // Then we just need a random list of hold points. Really doesn't matter what order they're in.
-                pointSequence.HoldPoints = HoldPoints.OrderBy(x => Random.Range(0, 100))
-                    .Take(5).Select(x => HoldPoints.IndexOf(x)).ToList();
-            }
-            else
-            {
-                // If the sequence was authored manually just translate it to the index based sequence the game wants
-                pointSequence.StartSupplyPointIndex = SupplyPoints.IndexOf(sequence.StartSupplyPoint);
-                pointSequence.HoldPoints = sequence.HoldPoints.Select(x => HoldPoints.IndexOf(x)).ToList();
-            }
+            // Then we just need a random list of hold points. Really doesn't matter what order they're in.
+            pointSequence.HoldPoints = HoldPoints.OrderBy(_ => Random.Range(0, 100))
+                .Take(5).Select(x => HoldPoints.IndexOf(x)).ToList();
 
             // Return the generated sequence
             return pointSequence;
@@ -122,8 +124,14 @@ namespace Atlas.MappingComponents.TakeAndHold
         {
             foreach (var holdPoint in HoldPoints)
             {
-                // Copy all this stuff over
+                // Make a new hold point object
                 TNH_HoldPoint clone = Instantiate(templateHoldPoint).GetComponent<TNH_HoldPoint>();
+                clone.transform.SetPositionAndRotation(holdPoint.transform.position, holdPoint.transform.rotation);
+
+                // Clear the existing children
+                foreach (var child in clone.gameObject.IterateChildren()) Destroy(child);
+
+                // Copy over all the stuff
                 clone.Bounds = holdPoint.Bounds;
                 clone.NavBlockers = holdPoint.NavBlockers;
                 clone.SpawnPoint_SystemNode = holdPoint.SystemNode;
@@ -133,12 +141,12 @@ namespace Atlas.MappingComponents.TakeAndHold
                 clone.SpawnPoints_Sosigs_Defense = holdPoint.SosigDefense;
 
                 // Generate the barrier points by copying them into a new list
-                clone.BarrierPoints = new List<TNH_DestructibleBarrierPoint>();
+                clone.BarrierPoints.Clear();
                 foreach (var point in holdPoint.BarrierPoints)
                 {
-                    var barrierPoint = Instantiate(templateBarrierSpawnPoint)
+                    var barrierPoint = Instantiate(templateBarrierSpawnPoint, clone.transform)
                         .GetComponent<TNH_DestructibleBarrierPoint>();
-                    barrierPoint.transform.position = point.transform.position;
+                    barrierPoint.transform.SetPositionAndRotation(point.transform.position, point.transform.rotation);
                     clone.BarrierPoints.Add(barrierPoint);
                 }
 
@@ -150,7 +158,13 @@ namespace Atlas.MappingComponents.TakeAndHold
         {
             foreach (var supplyPoint in SupplyPoints)
             {
+                // Make a new supply point object
                 TNH_SupplyPoint clone = Instantiate(templateSupplyPoint).GetComponent<TNH_SupplyPoint>();
+
+                // Clear the existing children
+                foreach (var child in clone.gameObject.IterateChildren()) Destroy(child);
+
+                // Copy over all of the fields and stuff
                 clone.Bounds = supplyPoint.Bounds;
                 clone.SpawnPoint_PlayerSpawn = supplyPoint.Player;
                 clone.SpawnPoints_Sosigs_Defense = supplyPoint.SosigDefense;
@@ -167,33 +181,18 @@ namespace Atlas.MappingComponents.TakeAndHold
             }
         }
 
-        private void CleanTemplateObjects(GameObject templateHoldPoint, GameObject templateSupplyPoint)
-        {
-            // Cleanup the two template objects
-            void CleanGameObject(GameObject go, string[] patterns)
-            {
-                foreach (var child in go.IterateChildren())
-                {
-                    foreach (var pattern in patterns)
-                        if (child.name.Contains(pattern))
-                            Destroy(child);
-                }
-            }
-
-            CleanGameObject(templateHoldPoint, new[] {"AttackVectors", "SpawnPoint_", "NavBlockers", "Bounds"});
-            CleanGameObject(templateSupplyPoint, new[] {"SpawnPoint", "Bounds"});
-        }
-
         private void InitializeManager(TNH_Manager manager, List<TNH_HoldPoint> realHoldPoints,
             List<TNH_SupplyPoint> realSupplyPoints)
         {
             // Setup the simple stuff
             manager.LevelName = AtlasPlugin.CurrentScene?.Identifier;
-            manager.IsBigLevel = IsBigLevel;
-            manager.UsesClassicPatrolBehavior = UsesClassicPatrolBehaviour;
             manager.HoldPoints = realHoldPoints;
             manager.SupplyPoints = realSupplyPoints;
             manager.ScoreDisplayPoint = ScoreDisplayPoint;
+            
+            // TODO:
+            manager.IsBigLevel = false;
+            manager.UsesClassicPatrolBehavior = true;
         }
 
         private void InitializeState(TNH_Manager manager)
@@ -202,16 +201,16 @@ namespace Atlas.MappingComponents.TakeAndHold
             Random.State lastState = Random.state;
             Random.InitState(AtlasPlugin.CurrentScene!.Identifier.GetHashCode());
 
-            AtlasPlugin.Logger.LogDebug("Generating Point Sequences");
             // Generate a point sequence based on the info provided in the editor
             manager.PossibleSequnces = new List<TNH_PointSequence>();
-            foreach (var sequence in PossibleSequences) manager.PossibleSequnces.Add(GeneratePointSequence(sequence));
 
-            AtlasPlugin.Logger.LogDebug("Generating Safe Position Matrix");
-            // If the safe position matrix is set use it, otherwise generate a default one.
-            manager.SafePosMatrix = SafePosMatrix ? SafePosMatrix : GenerateSafePositionMatrix(manager);
+            // Generate 10 random seeds
+            for (int i = 0; i < 10; i++)
+                manager.PossibleSequnces.Add(GeneratePointSequence());
 
-            AtlasPlugin.Logger.LogDebug("Resetting State");
+            // Generate a safe position matrix for the seeds
+            manager.SafePosMatrix = GenerateSafePositionMatrix(manager);
+
             // Reset the random seed
             Random.state = lastState;
         }

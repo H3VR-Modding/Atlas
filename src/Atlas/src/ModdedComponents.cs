@@ -9,7 +9,7 @@ namespace Atlas
 
     internal class CustomLevelData : TNH_UIManager.LevelData
     {
-        public CustomSceneInfo SceneInfo; 
+        public readonly CustomSceneInfo SceneInfo; 
         
         public CustomLevelData(CustomSceneInfo info)
         {

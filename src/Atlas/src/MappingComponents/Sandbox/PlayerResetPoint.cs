@@ -11,9 +11,14 @@ namespace Atlas.MappingComponents.Sandbox
     {
         private IEnumerator Start()
         {
-            // Wait one frame so that everything is all setup
+            // Wait until next frame so that everything is all setup
             yield return null;
-            GM.CurrentSceneSettings.DeathResetPoint = transform;
+
+            // If the death point is already set (which it should be) move it to here.
+            // Otherwise set this as the reset point.
+            var deathResetPoint = GM.CurrentSceneSettings.DeathResetPoint;
+            if (deathResetPoint) deathResetPoint.SetPositionAndRotation(transform.position, transform.rotation);
+            else GM.CurrentSceneSettings.DeathResetPoint = transform;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -32,7 +32,7 @@ namespace Atlas
         /// <summary>
         /// Version of Atlas
         /// </summary>
-        public const string Version = "0.1.2";
+        public const string Version = "0.1.3";
 
         internal const string LoaderSandbox = "sandbox";
         internal const string LoaderTakeAndHold = "takeandhold";
@@ -71,8 +71,6 @@ namespace Atlas
         {
             // We only use this callback for setting up the main menu level selector panel
             if (scene.name != "MainMenu3") yield break;
-
-            // TODO: This is WurstMod code, might want to clean this up and use a different sandbox level selection technique
             GameObject sceneScreenBase = GameObject.Find("SceneScreen_GDC");
             GameObject labelBase = GameObject.Find("Label_Description_1_Title (5)");
 

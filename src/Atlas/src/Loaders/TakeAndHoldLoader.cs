@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using Atlas.MappingComponents.Sandbox;
 using FistVR;
 using UnityEngine.SceneManagement;
