@@ -13,6 +13,8 @@ These updates were originally planned for WurstMod but there quickly became too 
 
 For map authors; while it is possible to update your maps from WurstMod to Atlas, because of the major changes to the workflow it may be very difficult. It is not something I recommend doing unless you know what you're doing.
 
+Shout out to @nolenz (Koba) for being the original author of WurstMod, the first project I worked on in the H3VR modding commuinity. I would not be here otherwise.
+
 ## How do I make a map?
 Checkout the getting [started guide](https://h3vr-modding.github.io/wiki/creating/mapping/atlas/getting_started/1_requirements.html) over on the wiki for more information on how to make your own maps
 
