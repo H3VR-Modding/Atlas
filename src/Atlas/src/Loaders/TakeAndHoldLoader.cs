@@ -7,7 +7,7 @@ namespace Atlas.Loaders
 {
     public class TakeAndHoldLoader : ISceneLoader
     {
-        public void Awake()
+        public virtual void Awake()
         {
             // Reset this flag just in case
             PrefabSpawnPoint.ObjectsCached = false;
@@ -16,7 +16,7 @@ namespace Atlas.Loaders
             SceneManager.LoadScene("ModBlank_Take&Hold", LoadSceneMode.Additive);
         }
 
-        public IEnumerator Start()
+        public virtual IEnumerator Start()
         {
             // If we have the item spawner enabled then we can allow that prefab in the prefab spawn point
             if (GM.TNH_Manager.ItemSpawnerMode == TNH_ItemSpawnerMode.On)

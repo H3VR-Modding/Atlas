@@ -60,6 +60,9 @@ namespace Atlas.MappingComponents
         
         private void Awake()
         {
+            // Update the current scene
+            AtlasPlugin.CurrentScene = AtlasPlugin.LastLoadedScene;
+            
             // Query our gamemode from the AtlasPlugin.
             // This may already be set, in which case we definitely do not want to overwrite it.
             if (string.IsNullOrEmpty(GameMode)) GameMode = AtlasPlugin.CurrentScene!.GameMode;

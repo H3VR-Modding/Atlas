@@ -38,8 +38,7 @@ namespace Atlas
             SceneSettingsOverride settings = FindObjectOfType<SceneSettingsOverride>();
             if (settings)
             {
-                // Update the current scene
-                CurrentScene = LastLoadedScene;
+
 
                 // Copy over all of the scene settings into this before initializing
                 settings.ApplyOverrides(self);

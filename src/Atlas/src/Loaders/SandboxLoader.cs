@@ -8,7 +8,7 @@ namespace Atlas.Loaders
 {
     public class SandboxLoader : ISceneLoader
     {
-        public void Awake()
+        public virtual void Awake()
         {
             // Reset this flag just in case
             PrefabSpawnPoint.ObjectsCached = false;
@@ -17,7 +17,7 @@ namespace Atlas.Loaders
             SceneManager.LoadScene("ModBlank_Simple", LoadSceneMode.Additive);
         }
 
-        public IEnumerator Start()
+        public virtual IEnumerator Start()
         {
             // Once the scene is loaded we can get the important objects and cache them.
             GameObject[] objects = SceneManager.GetSceneByName("ModBlank_Simple").GetRootGameObjects();
