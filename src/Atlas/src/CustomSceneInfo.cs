@@ -22,11 +22,21 @@ namespace Atlas
         [JsonProperty]
         public string Identifier { get; private set; } = "";
 
+        // Obsolete param.
+        [JsonProperty]
+        private string Mode { set => DisplayMode = value; }
+        
         /// <summary>
         /// Game mode for this scene. Can be 'sandbox' or 'takeandhold' by default.
         /// </summary>
         [JsonProperty]
-        public string Mode { get; private set; } = "";
+        public string GameMode { get; private set; } = "";
+        
+        /// <summary>
+        /// Game mode for this scene. Can be 'sandbox' or 'takeandhold' by default.
+        /// </summary>
+        [JsonProperty]
+        public string DisplayMode { get; private set; } = "";
 
         /// <summary>
         /// Authors of this scene

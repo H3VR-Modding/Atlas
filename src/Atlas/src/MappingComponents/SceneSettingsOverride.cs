@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using FistVR;
 using UnityEngine;
@@ -9,8 +10,9 @@ namespace Atlas.MappingComponents
     /// This component provides override values for the FVRSceneSettings class
     /// </summary>
     public class SceneSettingsOverride : MonoBehaviour
-    {
-        [Header("Atlas Settings")] public string GameMode = AtlasConstants.LoaderSandbox;
+    { 
+        [SerializeField] [HideInInspector]
+        private string GameMode = "";
 
         [Header("Player Affordance")] public bool IsSpawnLockingEnabled = true;
         public bool AreHitBoxesEnabled = false;
@@ -58,6 +60,10 @@ namespace Atlas.MappingComponents
         
         private void Awake()
         {
+            // Query our gamemode from the AtlasPlugin.
+            // This may already be set, in which case we definitely do not want to overwrite it.
+            if (string.IsNullOrEmpty(GameMode)) GameMode = AtlasPlugin.CurrentScene!.GameMode;
+            
             // Let the scene loader for this game mode take over
             AtlasPlugin.Loaders[GameMode].Awake();
             
@@ -119,6 +125,12 @@ namespace Atlas.MappingComponents
             self.BaseLoudness = BaseLoudness;
             self.UsesWeaponHandlingAISound = UsesWeaponHandlingAISound;
             self.MaxImpactSoundEventDistance = MaxImpactSoundEventDistance;
+        }
+
+        private void OnValidate()
+        {
+            // Make sure this gets cleared as we now expect it to be empty.
+            if (!string.IsNullOrEmpty(GameMode)) GameMode = "";
         }
     }
 }

@@ -97,7 +97,7 @@ namespace Atlas
 
             // Create the screens for each scene
             CustomSceneInfo[] sandboxScenes =
-                RegisteredScenes.Where(x => x.Mode == AtlasConstants.LoaderSandbox).ToArray();
+                RegisteredScenes.Where(x => x.DisplayMode == AtlasConstants.LoaderSandbox).ToArray();
             int mainTex = Shader.PropertyToID("_MainTex");
             for (int i = 0; i < sandboxScenes.Length; i++)
             {

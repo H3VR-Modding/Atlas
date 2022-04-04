@@ -117,7 +117,7 @@ namespace Atlas
 
         private void TNH_UIManagerOnStart(On.FistVR.TNH_UIManager.orig_Start orig, TNH_UIManager self)
         {
-            foreach (var sceneInfo in RegisteredScenes.Where(s => s.Mode == AtlasConstants.LoaderTakeAndHold))
+            foreach (var sceneInfo in RegisteredScenes.Where(s => s.DisplayMode == AtlasConstants.LoaderTakeAndHold))
                 self.Levels.Add(new CustomLevelData(sceneInfo));
 
             orig(self);
