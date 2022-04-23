@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using Atlas.MappingComponents;
 using Atlas.MappingComponents.TakeAndHold;
@@ -22,6 +23,12 @@ namespace Atlas
             On.FistVR.SceneLoader.LoadMG += SceneLoaderOnLoadMG;
             On.FistVR.TNH_UIManager.UpdateLevelSelectDisplayAndLoader +=
                 TNH_UIManagerOnUpdateLevelSelectDisplayAndLoader;
+            
+            // These three patches prevent the soft-locking of a map if there aren't enough Sosig spawn points
+            On.FistVR.TNH_SupplyPoint.SpawnTakeEnemyGroup += TNH_SupplyPointOnSpawnTakeEnemyGroup;
+            On.FistVR.TNH_HoldPoint.SpawnTakeEnemyGroup += TNH_HoldPoint_SpawnTakeEnemyGroup;
+            On.FistVR.TNH_HoldPoint.SpawnHoldEnemyGroup += TNH_HoldPoint_SpawnHoldEnemyGroup;
+            
             
             // Patch this so that it doesn't throw an error if it's one frame too early.
             On.FistVR.FVRReverbSystem.CheckPlayerEnvironment += (orig, self) =>
@@ -165,6 +172,51 @@ namespace Atlas
             }
 
             StartCoroutine(LoadBundleThenScene(LastLoadedScene));
+        }
+        
+        private void TNH_SupplyPointOnSpawnTakeEnemyGroup(On.FistVR.TNH_SupplyPoint.orig_SpawnTakeEnemyGroup orig, TNH_SupplyPoint self)
+        {
+            try
+            {
+                orig(self);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Ignore the exception and log a warning.
+                int idx = self.M.SupplyPoints.IndexOf(self);
+                Logger.LogWarning("Supply point " + idx + "does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
+            }
+        }
+        
+        private void TNH_HoldPoint_SpawnTakeEnemyGroup(On.FistVR.TNH_HoldPoint.orig_SpawnTakeEnemyGroup orig, TNH_HoldPoint self)
+        {
+            try
+            {
+                orig(self);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Ignore the exception and log a warning.
+                int idx = self.M.HoldPoints.IndexOf(self);
+                Logger.LogWarning("Hold point " + idx + "does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
+            }
+        }
+        
+        private void TNH_HoldPoint_SpawnHoldEnemyGroup(On.FistVR.TNH_HoldPoint.orig_SpawnHoldEnemyGroup orig, TNH_HoldPoint self)
+        {
+            try
+            {
+                orig(self);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Ignore the exception and log a warning.
+                int idx = self.M.HoldPoints.IndexOf(self);
+                Logger.LogWarning("Hold point " + idx + "does not have enough Sosig attack spawn points!");
+                
+                // This variable also has to be set
+                self.m_isFirstWave = false;
+            }
         }
 #endif
     }
