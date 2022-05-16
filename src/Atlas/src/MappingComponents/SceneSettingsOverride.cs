@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using FistVR;
 using UnityEngine;
@@ -10,66 +9,167 @@ namespace Atlas.MappingComponents
     /// This component provides override values for the FVRSceneSettings class
     /// </summary>
     public class SceneSettingsOverride : MonoBehaviour
-    { 
+    {
         [SerializeField] [HideInInspector]
         private string GameMode = "";
 
-        [Header("Player Affordance")] public bool IsSpawnLockingEnabled = true;
-        public bool AreHitBoxesEnabled = false;
-        public bool DoesDamageGetRegistered = false;
+        /// <summary>When true, allows the player to spawnlock items in their quickbelt.</summary>
+        [Header("Player Affordance")]
+        public bool IsSpawnLockingEnabled = true;
+
+        /// <summary>When true, enables the player's damage hitboxes.</summary>
+        /// <remarks>Has similar functionality to <see cref="DoesDamageGetRegistered"/></remarks>
+        public bool AreHitBoxesEnabled;
+
+        /// <summary>When true, the player can receive damage.</summary>
+        /// <remarks>Has similar functionality to <see cref="AreHitBoxesEnabled"/></remarks>
+        public bool DoesDamageGetRegistered;
+
+        /// <summary>The maximum distance which the player can point at pointable objects.</summary>
         public float MaxPointingDistance = 2f;
+
+        /// <summary>The maximum range that projectiles can travel in this scene. Once they pass this distance they are deleted.</summary>
         public float MaxProjectileRange = 500f;
-        public bool ForcesCasingDespawn = false;
-        public bool IsGravityForced = false;
+
+        /// <summary>When true, spent casings will always despawn even if the player has specified otherwise in the settings.</summary>
+        public bool ForcesCasingDespawn;
+
+        /// <summary>When true, this scene will force the use of a specific gravity setting, ignoring what the player has specified in the settings.</summary>
+        /// <seealso cref="ForcedPhysGravity"/>
+        public bool IsGravityForced;
+
+        /// <summary>The gravity setting to use when <see cref="IsGravityForced"/> is enabled.</summary>
+        /// <seealso cref="IsGravityForced"/>
         public SimulationOptions.GravityMode ForcedPhysGravity;
 
-        [Header("Locomotion Options")] public bool IsLocoTeleportAllowed = true;
+        /// <summary>When true, allows the use of teleport locomotion.</summary>
+        /// <seealso cref="IsLocoSlideAllowed"/>
+        /// <seealso cref="IsLocoDashAllowed"/>
+        /// <seealso cref="IsLocoTouchpadAllowed"/>
+        /// <seealso cref="IsLocoArmSwingerAllowed"/>
+        [Header("Locomotion Options")]
+        public bool IsLocoTeleportAllowed = true;
+
+        /// <summary>When true, allows the use of slide locomotion.</summary>
+        /// <seealso cref="IsLocoTeleportAllowed"/>
+        /// <seealso cref="IsLocoDashAllowed"/>
+        /// <seealso cref="IsLocoTouchpadAllowed"/>
+        /// <seealso cref="IsLocoArmSwingerAllowed"/>
         public bool IsLocoSlideAllowed = true;
+
+        /// <summary>When true, allows the use of dash locomotion.</summary>
+        /// <seealso cref="IsLocoTeleportAllowed"/>
+        /// <seealso cref="IsLocoSlideAllowed"/>
+        /// <seealso cref="IsLocoTouchpadAllowed"/>
+        /// <seealso cref="IsLocoArmSwingerAllowed"/>
         public bool IsLocoDashAllowed = true;
+
+
+        /// <summary>When true, allows the use of touchpad (twinstick) locomotion.</summary>
+        /// <seealso cref="IsLocoTeleportAllowed"/>
+        /// <seealso cref="IsLocoSlideAllowed"/>
+        /// <seealso cref="IsLocoDashAllowed"/>
+        /// <seealso cref="IsLocoArmSwingerAllowed"/>
         public bool IsLocoTouchpadAllowed = true;
+
+        /// <summary>When true, allows the use of arm swinger locomotion.</summary>
+        /// <seealso cref="IsLocoTeleportAllowed"/>
+        /// <seealso cref="IsLocoSlideAllowed"/>
+        /// <seealso cref="IsLocoDashAllowed"/>
+        /// <seealso cref="IsLocoTouchpadAllowed"/>
         public bool IsLocoArmSwingerAllowed = true;
-        public bool DoesTeleportUseCooldown = false;
-        public bool DoesAllowAirControl = false;
-        public bool UseMaxSpeedClamp = false;
+
+        /// <summary>When true, teleport locomotion options will require a short delay between teleports.</summary>
+        public bool DoesTeleportUseCooldown;
+
+        /// <summary>When true, allows the player to control themselves better while in the air.</summary>
+        public bool DoesAllowAirControl;
+
+        /// <summary>When true, clamps the player's maximum speed to <see cref="MaxSpeedClamp"/>.</summary>
+        public bool UseMaxSpeedClamp;
+
+        /// <summary>The maximum speed the player can move when <see cref="UseMaxSpeedClamp"/> is true.</summary>
         public float MaxSpeedClamp = 3f;
 
-        [Header("Player Catching Options")] public bool UsesPlayerCatcher = true;
+        /// <summary>When true, the player will be moved to the scene's reset point if they fall below <see cref="CatchHeight"/>.</summary>
+        [Header("Player Catching Options")]
+        public bool UsesPlayerCatcher = true;
+
+        /// <summary>Falling below this height with <see cref="UsesPlayerCatcher"/> enabled will move the player back to the reset point.</summary>
         public float CatchHeight = -50f;
 
-        [Header("Player Respawn Options")] public int DefaultPlayerIFF = 0;
-        public bool DoesPlayerRespawnOnDeath = true;
-        public float PlayerDeathFade = 3;
-        public float PlayerRespawnLoadDelay = 3.5f;
-        public string SceneToLoadOnDeath = "";
-        public bool DoesUseHealthBar = false;
-        public bool IsQuickbeltSwappingAllowed = true;
-        public bool AreQuickbeltSlotsEnabled = true;
-        public bool ConfigQuickbeltOnLoad = false;
-        public int QuickbeltToConfig = 0;
-        public bool IsSceneLowLight = false;
-        public bool IsAmmoInfinite = false;
-        public bool AllowsInfiniteAmmoMags = true;
-        public bool UsesUnlockSystem = false;
+        /// <summary>The initial IFF of the player.</summary>
+        [Header("Player Respawn Options")]
+        public int DefaultPlayerIFF;
 
-        [Header("Audio Stuff")] public FVRSoundEnvironment DefaultSoundEnvironment = FVRSoundEnvironment.None;
+        /// <summary>When false, instead of respawning the player on death, the scene specified by <see cref="SceneToLoadOnDeath"/> will be loaded.</summary>
+        public bool DoesPlayerRespawnOnDeath = true;
+
+        /// <summary>The duration of the visual fade effect when the player dies.</summary>
+        public float PlayerDeathFade = 3;
+
+        /// <summary>The delay between when the player dies and when they are respawned.</summary>
+        /// <remarks>
+        /// This runs concurrently with <see cref="PlayerDeathFade"/>, with the default values of 3 and 3.5 the player
+        /// will have their vision faded to black for 3 seconds and then half a second later will respawn.
+        /// </remarks>
+        public float PlayerRespawnLoadDelay = 3.5f;
+
+        /// <summary>The scene to load when the player dies if <see cref="DoesPlayerRespawnOnDeath"/> is false.</summary>
+        public string SceneToLoadOnDeath = "";
+
+        /// <summary>When true, the health bar will be displayed to the player.</summary>
+        public bool DoesUseHealthBar;
+
+        /// <summary>When true, the player will be allowed to change their quickbelt while in the scene.</summary>
+        public bool IsQuickbeltSwappingAllowed = true;
+
+        /// <summary>When true, the player will be given quickbelt slots.</summary>
+        /// <remarks>This is used in the main menu, where the player does not have the quickbelt.</remarks>
+        public bool AreQuickbeltSlotsEnabled = true;
+
+        /// <summary>When true, a specific quickbelt designated by <see cref="QuickbeltToConfig"/> will be switched to on scene load.</summary>
+        public bool ConfigQuickbeltOnLoad;
+
+        /// <summary>The index of the quickbelt to load on scene start when <see cref="ConfigQuickbeltOnLoad"/> is true.</summary>
+        public int QuickbeltToConfig;
+
+        /// <summary>When true, light effects like flashlights and muzzle flash have increased intensity.</summary>
+        public bool IsSceneLowLight;
+
+        /// <summary>When true, the player will have infinite ammo. Magazines will never empty allowing the player to fire forever.</summary>
+        public bool IsAmmoInfinite;
+
+        /// <summary>When true, enables magazines which are set to have specific ammo to work.</summary>
+        public bool AllowsInfiniteAmmoMags = true;
+
+        /// <summary>When true, the item spawner will operate as it does in M.E.A.T.S., where all firearms are locked by default and must be purchased.</summary>
+        public bool UsesUnlockSystem;
+
+        /// <summary>The base 'loudness' of the scene. Audio events with a loudness less than this are ignored by AI entities.</summary>
+        [Header("Audio Stuff")]
         public float BaseLoudness = 5f;
-        public bool UsesWeaponHandlingAISound = false;
+        
+        /// <summary>When true, the player handling weapons will emit audio events detectable by AI entities.</summary>
+        public bool UsesWeaponHandlingAISound;
+        
+        /// <summary>The maximum distance which object collision sounds will alert AI entities.</summary>
         public float MaxImpactSoundEventDistance = 15f;
 
         private readonly List<AudioSource> _audioSources = new();
-        
+
         private void Awake()
         {
             // Update the current scene
             AtlasPlugin.CurrentScene = AtlasPlugin.LastLoadedScene;
-            
-            // Query our gamemode from the AtlasPlugin.
+
+            // Query our game mode from the AtlasPlugin.
             // This may already be set, in which case we definitely do not want to overwrite it.
             if (string.IsNullOrEmpty(GameMode)) GameMode = AtlasPlugin.CurrentScene!.GameMode;
-            
+
             // Let the scene loader for this game mode take over
             AtlasPlugin.Loaders[GameMode].Awake();
-            
+
             // Apply a fix for any audio sources
             foreach (var source in FindObjectsOfType<AudioSource>())
             {
@@ -124,7 +224,7 @@ namespace Atlas.MappingComponents
             self.IsAmmoInfinite = IsAmmoInfinite;
             self.AllowsInfiniteAmmoMags = AllowsInfiniteAmmoMags;
             self.UsesUnlockSystem = UsesUnlockSystem;
-            self.DefaultSoundEnvironment = DefaultSoundEnvironment;
+            self.DefaultSoundEnvironment = FVRSoundEnvironment.None;
             self.BaseLoudness = BaseLoudness;
             self.UsesWeaponHandlingAISound = UsesWeaponHandlingAISound;
             self.MaxImpactSoundEventDistance = MaxImpactSoundEventDistance;

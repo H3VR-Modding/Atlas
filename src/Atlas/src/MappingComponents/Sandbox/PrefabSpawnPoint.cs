@@ -5,26 +5,36 @@ using UnityEngine;
 
 namespace Atlas.MappingComponents.Sandbox
 {
-    /// <summary>
-    /// This component will spawn a prefab at it's position
-    /// </summary>
-    /// <remarks>
-    /// Using this component will destroy the game object it's placed on when it spawns the prefab!
-    /// </remarks>
+    /// <summary>This component will spawn a functional prefab at it's position</summary>
+    /// <remarks>Using this component will destroy the game object it's placed on when it spawns the prefab!</remarks>
     public class PrefabSpawnPoint : MonoBehaviour
     {
         internal static readonly Dictionary<PrefabType, GameObject> CachedObjects = new();
         internal static bool ObjectsCached = false;
 
+        /// <summary>The available prefabs for spawning</summary>
         public enum PrefabType
         {
+            /// <summary>Item spawner v2</summary>
             ItemSpawner,
+            
+            /// <summary>Item spawner v3</summary>
+            ItemSpawnerNew,
+            
+            /// <summary>Garbage bin that destroys objects</summary>
             Destructobin,
+            
+            /// <summary>Utility tool that lets you spawn Sosigs.</summary>
             SosigSpawner,
+            
+            /// <summary>Crafting machine used in RotR.</summary>
             WhizzBangADinger,
+            
+            /// <summary>Remote detonator tool used for some items crafted with the <see cref="WhizzBangADinger"/>.</summary>
             BangerDetonator
         }
 
+        /// <summary>The type of prefab to spawn.</summary>
         public PrefabType Type;
 
         private IEnumerator Start()

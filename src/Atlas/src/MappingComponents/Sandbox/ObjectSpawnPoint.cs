@@ -9,7 +9,15 @@ namespace Atlas.MappingComponents.Sandbox
     /// </summary>
     public class ObjectSpawnPoint : MonoBehaviour
     {
+        /// <summary>
+        /// The object id of the prefab to spawn. 
+        /// </summary>
         public string ObjectId = "";
+        
+        /// <summary>
+        /// When true, the object will be spawned immediately on scene load. Otherwise it can be spawned by calling
+        /// <see cref="Spawn"/> from another script or via a UnityEvent.
+        /// </summary>
         public bool SpawnOnStart = true;
 
         private IEnumerator Start()
@@ -22,6 +30,7 @@ namespace Atlas.MappingComponents.Sandbox
             yield return SpawnAsync();
         }
 
+        /// <summary>Calling this method will spawn the object.</summary>
         public void Spawn()
         {
             StartCoroutine(SpawnAsync());

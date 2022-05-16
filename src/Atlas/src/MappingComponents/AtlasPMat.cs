@@ -2,11 +2,19 @@
 using FistVR;
 using UnityEngine;
 
+
 // ReSharper disable StringLiteralTypo, IdentifierTypo, InconsistentNaming
 namespace Atlas.MappingComponents
 {
+    /// <summary>
+    /// An extension of the game's PMat script to enable the usage of an enum for selecting the material rather than
+    /// requiring a reference to a scriptable object. The data values in this class were generated using WurstMod's
+    /// CodeGen project.
+    /// https://github.com/WurstModders/WurstMod/tree/master/WurstModCodeGen
+    /// </summary>
     public class AtlasPMat : PMat
     {
+        /// <summary>The material this collider will use</summary>
         public MatDefEnum AtlasMatDef;
         
         private void Awake()
@@ -16,6 +24,9 @@ namespace Atlas.MappingComponents
 
         #region MatDef
 
+        /// <summary>
+        /// Enum with all of the PMat entries for use in the editor.
+        /// </summary>
         public enum MatDefEnum
         {
             _Air = -366646783,
@@ -78,6 +89,9 @@ namespace Atlas.MappingComponents
             WoodProp = -2101361410
         }
 
+        /// <summary>
+        /// A dictionary mapping the enum values to the resources location which the scriptable object can be found.
+        /// </summary>
         private static readonly Dictionary<MatDefEnum, string> MatDefResources = new()
         {
 

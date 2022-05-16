@@ -184,7 +184,7 @@ namespace Atlas
             {
                 // Ignore the exception and log a warning.
                 int idx = self.M.SupplyPoints.IndexOf(self);
-                Logger.LogWarning("Supply point " + idx + "does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
+                Logger.LogWarning("Supply point " + idx + " does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
             }
         }
         
@@ -198,7 +198,7 @@ namespace Atlas
             {
                 // Ignore the exception and log a warning.
                 int idx = self.M.HoldPoints.IndexOf(self);
-                Logger.LogWarning("Hold point " + idx + "does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
+                Logger.LogWarning("Hold point " + idx + " does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
             }
         }
         
@@ -212,7 +212,7 @@ namespace Atlas
             {
                 // Ignore the exception and log a warning.
                 int idx = self.M.HoldPoints.IndexOf(self);
-                Logger.LogWarning("Hold point " + idx + "does not have enough Sosig attack spawn points!");
+                Logger.LogWarning("Hold point " + idx + " does not have enough Sosig attack spawn points!");
                 
                 // This variable also has to be set
                 self.m_isFirstWave = false;
