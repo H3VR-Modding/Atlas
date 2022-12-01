@@ -35,6 +35,12 @@ namespace Atlas
             {
                 if (GM.CurrentPlayerBody) orig(self);
             };
+            
+            // Same here
+            On.FistVR.FVRAmbienceController.Update += (orig, self) =>
+            {
+                if (GM.CurrentPlayerBody) orig(self);
+            };
 #endif
         }
 

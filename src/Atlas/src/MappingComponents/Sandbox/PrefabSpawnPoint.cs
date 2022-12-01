@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using FistVR;
 using UnityEngine;
 
 namespace Atlas.MappingComponents.Sandbox
@@ -15,12 +16,9 @@ namespace Atlas.MappingComponents.Sandbox
         /// <summary>The available prefabs for spawning</summary>
         public enum PrefabType
         {
-            /// <summary>Item spawner v2</summary>
+            /// <summary>Item spawner</summary>
             ItemSpawner,
-            
-            /// <summary>Item spawner v3</summary>
-            ItemSpawnerNew,
-            
+
             /// <summary>Garbage bin that destroys objects</summary>
             Destructobin,
             
@@ -41,16 +39,26 @@ namespace Atlas.MappingComponents.Sandbox
         {
             // Wait until the objects are cached
             while (!ObjectsCached) yield return null;
+
+            // Adjust the spawn position slightly if necessary.
+            Vector3 spawnPosition = transform.position;
+            
+            // Do some special stuff for the item spawner
+            if (Type == PrefabType.ItemSpawner)
+            {
+                // It needs to come forward a bit
+                spawnPosition += transform.forward * 0.025f;
+            }
             
             // Make a copy of the object we want to spawn and set it active
             // If it's null or missing then just ignore
             if (CachedObjects.ContainsKey(Type) && CachedObjects[Type])
-                Instantiate(CachedObjects[Type], transform.position, transform.rotation).SetActive(true);
-            
-            // Destroy ourselves since we're done
-            Destroy(gameObject);
+            {
+                GameObject obj = Instantiate(CachedObjects[Type], spawnPosition, transform.rotation);
+                obj.SetActive(true);
+            }
         }
-        
+
         private void OnDrawGizmos()
         {
             Gizmos.color = new Color(0.4f, 0.4f, 0.9f, 0.5f);

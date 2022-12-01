@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Linq;
 using Atlas.MappingComponents.Sandbox;
+using FistVR;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,7 +22,7 @@ namespace Atlas.Loaders
         {
             // Once the scene is loaded we can get the important objects and cache them.
             GameObject[] objects = SceneManager.GetSceneByName("ModBlank_Simple").GetRootGameObjects();
-            PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.ItemSpawner] = objects.First(x => x.name == "ItemSpawner");
+            PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.ItemSpawner] = IM.Prefab_ItemSpawner;
             PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.Destructobin] = objects.First(x => x.name == "Destructobin");
             PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.SosigSpawner] = objects.First(x => x.name == "SosigSpawner");
             PrefabSpawnPoint.CachedObjects[PrefabSpawnPoint.PrefabType.BangerDetonator] = objects.First(x => x.name == "BangerDetonator");
