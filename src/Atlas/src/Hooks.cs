@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using Atlas.MappingComponents;
 using Atlas.MappingComponents.TakeAndHold;
 using FistVR;
+using HarmonyLib;
+using MonoMod.RuntimeDetour;
 using Sodalite.Api;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,43 +19,52 @@ namespace Atlas
         private void ApplyHooks()
         {
 #if RUNTIME
+
             On.FistVR.FVRSceneSettings.Awake += FVRSceneSettingsOnAwake;
             On.FistVR.TNH_Manager.Start += TNH_ManagerOnStart;
             On.FistVR.MainMenuScreen.LoadScene += MainMenuScreenOnLoadScene;
             On.FistVR.TNH_UIManager.Start += TNH_UIManagerOnStart;
-            On.FistVR.SceneLoader.LoadMG += SceneLoaderOnLoadMG;
-            On.FistVR.TNH_UIManager.UpdateLevelSelectDisplayAndLoader +=
-                TNH_UIManagerOnUpdateLevelSelectDisplayAndLoader;
-            
-            // These three patches prevent the soft-locking of a map if there aren't enough Sosig spawn points
-            On.FistVR.TNH_SupplyPoint.SpawnTakeEnemyGroup += TNH_SupplyPointOnSpawnTakeEnemyGroup;
-            On.FistVR.TNH_HoldPoint.SpawnTakeEnemyGroup += TNH_HoldPoint_SpawnTakeEnemyGroup;
-            On.FistVR.TNH_HoldPoint.SpawnHoldEnemyGroup += TNH_HoldPoint_SpawnHoldEnemyGroup;
-            
-            
+            On.FistVR.TNH_UIManager.UpdateLevelSelectDisplayAndLoader += TNH_UIManagerOnUpdateLevelSelectDisplayAndLoader;
+
             // Patch this so that it doesn't throw an error if it's one frame too early.
             On.FistVR.FVRReverbSystem.CheckPlayerEnvironment += (orig, self) =>
             {
                 if (GM.CurrentPlayerBody) orig(self);
             };
-            
+
             // Same here
             On.FistVR.FVRAmbienceController.Update += (orig, self) =>
             {
                 if (GM.CurrentPlayerBody) orig(self);
             };
+
+
+            if (GameAPI.BuildId >= 20345029)
+            {
+                MethodInfo tnhLoadSelectedLevel = AccessTools.Method(typeof(TNH_UIManager), nameof(TNH_UIManager.LoadCurrentlySelectedLevel));
+                MethodInfo detourTnhLoadSelectedLevel = AccessTools.Method(typeof(AtlasPlugin), nameof(TNH_UIManagerOnLoadCurrentlySelectedLevel));
+                DetourTnhUiManager_LoadLevel = new Hook(tnhLoadSelectedLevel, detourTnhLoadSelectedLevel);
+            }
+            else
+            {
+                MethodInfo sceneLoaderLoadMg = AccessTools.Method(typeof(SceneLoader), nameof(SceneLoader.LoadMG));
+                MethodInfo detourSceneLoaderLoadMg = AccessTools.Method(typeof(AtlasPlugin), nameof(SceneLoader_LoadMG));
+                DetourSceneLoader_LoadMG = new Hook(sceneLoaderLoadMg, detourSceneLoaderLoadMg);
+            }
 #endif
         }
 
 #if RUNTIME
+        // Hooks will undo themselves if they get GC'd so we need to keep a reference to them.
+        private static Hook DetourTnhUiManager_LoadLevel = null!;
+        private static Hook DetourSceneLoader_LoadMG = null!;
+
         private static void FVRSceneSettingsOnAwake(On.FistVR.FVRSceneSettings.orig_Awake orig, FVRSceneSettings self)
         {
             // If there's a scene settings override component somewhere in the scene we'll say this is a custom scene.
             SceneSettingsOverride settings = FindObjectOfType<SceneSettingsOverride>();
             if (settings)
             {
-
-
                 // Copy over all of the scene settings into this before initializing
                 settings.ApplyOverrides(self);
 
@@ -153,7 +165,23 @@ namespace Atlas
             orig(self);
         }
 
-        private void SceneLoaderOnLoadMG(On.FistVR.SceneLoader.orig_LoadMG orig, SceneLoader self)
+        private static void TNH_UIManagerOnLoadCurrentlySelectedLevel(Action<TNH_UIManager> orig, TNH_UIManager self)
+        {
+            // If we're not loading a custom level just don't do anything
+            if (LastLoadedScene == null)
+            {
+                orig(self);
+                return;
+            }
+
+            Instance.StartCoroutine(LoadBundleThen(LastLoadedScene, () =>
+            {
+                self.LevelName = LastLoadedScene.SceneBundle!.GetAllScenePaths()[0];
+                orig(self);
+            }));
+        }
+
+        private static void SceneLoader_LoadMG(Action<SceneLoader> orig, SceneLoader self)
         {
             // This hotdog is also used in MeatGrinder so check to make sure we're not in there first
             if (SceneManager.GetActiveScene().name != "TakeAndHold_Lobby_2" || LastLoadedScene is null)
@@ -162,67 +190,25 @@ namespace Atlas
                 return;
             }
 
-            IEnumerator LoadBundleThenScene(CustomSceneInfo sceneInfo)
+            Instance.StartCoroutine(LoadBundleThen(LastLoadedScene, () =>
             {
-                if (!sceneInfo.SceneBundle)
-                {
-                    // Create the load request
-                    AssetBundleCreateRequest
-                        request = AssetBundle.LoadFromFileAsync(sceneInfo.SceneBundleFile.FullName);
-                    yield return request;
-                    sceneInfo.SceneBundle = request.assetBundle;
-                }
+                self.LevelName = LastLoadedScene.SceneBundle!.GetAllScenePaths()[0];
+                orig(self);
+            }));
+        }
 
-                self.LevelName = sceneInfo.SceneBundle!.GetAllScenePaths()[0];
-                orig(self);
+        private static IEnumerator LoadBundleThen(CustomSceneInfo sceneInfo, Action continueWith)
+        {
+            if (!sceneInfo.SceneBundle)
+            {
+                // Create the load request
+                AssetBundleCreateRequest
+                    request = AssetBundle.LoadFromFileAsync(sceneInfo.SceneBundleFile.FullName);
+                yield return request;
+                sceneInfo.SceneBundle = request.assetBundle;
             }
 
-            StartCoroutine(LoadBundleThenScene(LastLoadedScene));
-        }
-        
-        private void TNH_SupplyPointOnSpawnTakeEnemyGroup(On.FistVR.TNH_SupplyPoint.orig_SpawnTakeEnemyGroup orig, TNH_SupplyPoint self)
-        {
-            try
-            {
-                orig(self);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                // Ignore the exception and log a warning.
-                int idx = self.M.SupplyPoints.IndexOf(self);
-                Logger.LogWarning("Supply point " + idx + " does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
-            }
-        }
-        
-        private void TNH_HoldPoint_SpawnTakeEnemyGroup(On.FistVR.TNH_HoldPoint.orig_SpawnTakeEnemyGroup orig, TNH_HoldPoint self)
-        {
-            try
-            {
-                orig(self);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                // Ignore the exception and log a warning.
-                int idx = self.M.HoldPoints.IndexOf(self);
-                Logger.LogWarning("Hold point " + idx + " does not have enough Sosig defense spawn points! Needed " + self.T.NumGuards + ", has " + self.SpawnPoints_Sosigs_Defense.Count);
-            }
-        }
-        
-        private void TNH_HoldPoint_SpawnHoldEnemyGroup(On.FistVR.TNH_HoldPoint.orig_SpawnHoldEnemyGroup orig, TNH_HoldPoint self)
-        {
-            try
-            {
-                orig(self);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                // Ignore the exception and log a warning.
-                int idx = self.M.HoldPoints.IndexOf(self);
-                Logger.LogWarning("Hold point " + idx + " does not have enough Sosig attack spawn points!");
-                
-                // This variable also has to be set
-                self.m_isFirstWave = false;
-            }
+            continueWith();
         }
 #endif
     }

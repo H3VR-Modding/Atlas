@@ -5,7 +5,8 @@
   "website_url": "https://github.com/H3VR-Modding/Atlas",
   "description": "The next generation of mapping tools for H3VR",
   "dependencies": [
-    "nrgill28-Sodalite-1.1.0"
+    "nrgill28-Sodalite-1.1.0",
+	"nrgill28-HookGenPatcher_H3VR-1.2.3"
   ],
   "author": "nrgill28"
 }
